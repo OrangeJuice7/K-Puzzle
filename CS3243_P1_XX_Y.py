@@ -35,8 +35,8 @@ if __name__ == "__main__":
     
     # n = num rows in input file
     n = len(lines)
-    # max_num = 2 to the power of n - 1
-    max_num = 2 ** n - 1
+    # max_num = n to the power of 2 - 1
+    max_num = n ** 2 - 1
 
     # Instantiate a 2D list of size n x n
     init_state = [[0 for i in range(n)] for j in range(n)]
@@ -45,11 +45,14 @@ if __name__ == "__main__":
 
     i,j = 0, 0
     for line in lines:
-        for number in line:
-            if '0'<= number <= str(max_num):
-                init_state[i][j] = int(number)
+        for number in line.split(" "):
+            if number == '':
+                continue
+            value = int(number , base = 10)
+            if  0 <= value <= max_num:
+                init_state[i][j] = value
                 j += 1
-                if j == 3:
+                if j == n:
                     i += 1
                     j = 0
 
