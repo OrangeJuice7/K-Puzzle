@@ -84,12 +84,16 @@ The problem is to determine if $g$ is reachable from a given initial state $s$, 
 All the evaluated algorithms initially check for the solvability of the given puzzle, using the criterion that was proposed and proved in \cite{Solvability}. This is to guarantee to the search algorithms that the goal state is reachable, so they do not need to exhaust an extremely large solution space.
 The criterion is restated and reproved in Appendix \ref{subsec:solvability}.
 
+Since the goal node $g$ is reachable, it has a finite depth $d$.
+
+Given any valid state, there are up to $|A|=4$ possible actions. However, the initial state only has 2 possible actions, and every state thereafter has an action that backtracks and can thus be discounted, thus the maximum branching factor $b$ of the problem space is $|A|-1=3$.
+
 \subsection{Breadth-First Search (BFS) (Uninformed)}
 \subsubsection{Correctness}
-[BLAH]
+BFS explores all reachable nodes of depth $d'$ before it starts exploring nodes of depth $d'+1$. Hence, there are at most $\sum_{i=1}^d b^i$ nodes that BFS will explore before it explores $g$, which is finite, thus BFS will find $g$. Once BFS has found $g$, it backtracks through its search tree to derive the sequence of actions that leads from $s$ to $g$. All actions that BFS has undertaken are valid, and leads from $s$ to $g$, therefore BFS returns a correct sequence.
 
 \subsubsection{Efficiency}
-Given any valid state, there are up to $|A|=4$ possible actions. However, the initial state only has 2 possible actions, and every state thereafter has an action that backtracks and can thus be discounted, thus the maximum branching factor $b$ of the problem space is $|A|-1=3$. // This algorithm thus has $O(3^d)$ time and $O(3^d)$ space complexity.
+There are at most $\sum_{i=1}^d 3^i$ nodes that BFS will explore before it explores $g$. Each node is explored in constant time, thus BFS has $O(3^d)$ time complexity. BFS tracks all explored and seen nodes in memory, Which amount to at most $3^{d+1} = 3 \cdot 3^d \in O(3^d)$, thus BFS has $O(3^d)$ space complexity.
 
 \subsection{A* Search (Informed)}
 \subsubsection{Correctness}
@@ -99,7 +103,7 @@ Given any valid state, there are up to $|A|=4$ possible actions. However, the in
 [BLAH]
 
 \subsubsection{Heuristics}
-In this subsection, let $v$ be any (valid) state and $v'$ be any state reachable from $v$ by a single (valid) action. Their difference is the position of a single tile $T$ (the empty cell is not counted), which has swapped placed with the empty cell which it is adjacent to. Their absolute difference in cost $d(v,v') = 1$. Let $d_h(v,v') := h_1(v')-h_1(v)$ be their difference in heuristic cost.
+In this subsection, let $v$ be any (valid) state and $v'$ be any state reachable from $v$ by a single (valid) action. Their difference is the position of a single tile $T$ (the empty cell is not counted), which has swapped places with the empty cell, which it is adjacent to. Their absolute difference in cost $d(v,v') = 1$. Let $d_h(v,v') := h_1(v')-h_1(v)$ be their difference in heuristic cost.
 
 \paragraph{$h_1$: Sum of Manhattan distances of each (non-empty) tile from its final position.}
 Proof of consistency: $T$ is moved either closer to ($d_{h_1} = -1$) or farther away from ($d_{h_1} = 1$) its final position by a Manhattan distance of 1.
@@ -207,6 +211,6 @@ $\qed$
 % BibTeX users should specify bibliography style 'splncs04'.
 % References will then be sorted and formatted in the correct style.
 \bibliographystyle{splncs04}
-\bibliography{mybib}
+\bibliography{reportbib}
 
 \end{document}
