@@ -84,7 +84,7 @@ The problem is to determine if $g$ is reachable from a given initial state $s$, 
 All the evaluated algorithms initially check for the solvability of the given puzzle, using the criterion that was proposed and proved in \cite{Solvability}. This is to guarantee to the search algorithms that the goal state is reachable, so they do not need to exhaust an extremely large solution space.
 The criterion is restated and reproved in Appendix \ref{subsec:solvability}.
 
-\subsection{[...] Search (xxS) (Uninformed)}
+\subsection{Breadth-First Search (BFS) (Uninformed)}
 \subsubsection{Correctness}
 [BLAH]
 
@@ -109,7 +109,7 @@ In any case, $|d_{h_1}(v,v')|\leq 1 \implies h_1(v) \leq 1+h_1(v') = d(v,v')+h_1
 Proof of consistency: $T$ is either placed on ($d_{h_2} = -1$), moved out of ($d_{h_2} = 1$), or remains away ($d_{h_2} = 0$) from its final position.
 In any case, $|d_{h_2}(v,v')|\leq 1 \implies h_2(v) \leq 1+h_2(v') = d(v,v')+h_2(v')$, $\therefore$ $h_2$ is consistent. $\qed$
 
-\paragraph{$h_3$: Heu3}
+\paragraph{$h_3$: Heu3.}
 The 3 heuristics should be distinct and non-trivial; for example, your heuristic should not be a constant, a simple linear transformation of other heuristics, or any simple function of another heuristic like a square root of another
 
 Consistency/Admissibility: Your heuristic must be provably admissible, or (preferably) consistent. In either case you must formally prove this property. Note that consistency implies admissibility but not the other way around. Thus, if you show admissibility, you should provide a (preferably simple) counterexample where your heuristic violates consistency.
@@ -117,21 +117,22 @@ Consistency/Admissibility: Your heuristic must be provably admissible, or (prefe
 
 
 \section{Experimental Setup}
-The performances of the uninformed search and the informed search with each of the three heuristics have been experimentally measured, and consolidated in Table \ref{tab:results}. The inputs used draw from a specified subset of valid initial states, under a uniform random distribution, and the average results from 200 inputs were taken for each experiment. The metrics used to evaluate each algorithm are the absolute time taken to execute the algorithm, and the number of nodes seen. These metrics directly reflect the time and memory requirements of each algorithm respectively.
+The performances of BFS and A*-search with each of the three heuristics have been experimentally measured, and consolidated in Table \ref{tab:results}. The inputs used draw from a specified subset of valid initial states, under a uniform random distribution, and the average results from 200 inputs were taken for each experiment. The metrics used to evaluate each algorithm are the absolute time taken to execute the algorithm, and the number of nodes seen. These metrics directly reflect the time and memory requirements of each algorithm respectively.
 
-The algorithms were coded in Python 3.x.x and the experiments were run on a [OS] machine with a [processor] and 16 GB of RAM. Absolute time was measured with \texttt{[Python time library]}.
+The algorithms were coded in Python 2.6 and the experiments were run on a [OS] machine with a [processor] and 16 GB of RAM. Absolute time was measured with \texttt{[Python time library]}.
 
 % If there was a more lax report length requirement, it could be neater to split this into a time table and #nodes table
-\begin{table}[h]\label{tab:results}
+\begin{table}[h]
 \centering
 \caption{Experiment results.}
+\label{tab:results}
 \begin{tabular}{|c|
 		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
 		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
 		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
 		>{\centering}p{0.105\textwidth}|>{\centering\arraybackslash}p{0.095\textwidth}|} % compile error without \arraybackslash for some reason
 \hline
-      & \multicolumn{2}{c|}{xxS} & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
+      & \multicolumn{2}{c|}{BFS} & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
 \hline
 Inputs & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
 \hline
@@ -151,7 +152,7 @@ Inputs & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time ta
 
 
 \section{Results and Discussion}
-As Table \ref{tab:results} shows, [A* with $h_1$ is better than DFS].
+As Table \ref{tab:results} shows, [A* with $h_1$ is better than BFS].
 This agrees with our theoretical analysis.
 
 
