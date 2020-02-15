@@ -59,6 +59,7 @@ def performace():
 
 
 def timer(test, goal, testname, is_informed):
+	# record elapsed time
 	start = time.time()
 	if (not is_informed):
 		run = uninformed_search(test, goal)
@@ -67,6 +68,7 @@ def timer(test, goal, testname, is_informed):
 	end = time.time()
 	print(testname + ": %.8f s" %(end - start))
 
+	# record optimal path length found
 	if (len(run) == 1 and run[0] == "UNSOLVABLE"):
 		print("path length: UNSOLVABLE")
 	else:

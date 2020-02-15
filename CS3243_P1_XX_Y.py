@@ -1,5 +1,7 @@
 import os
 import sys
+import informed
+import uninformed
 
 
 class Puzzle(object):
