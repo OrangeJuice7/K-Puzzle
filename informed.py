@@ -2,7 +2,7 @@ from heapq import heappush
 from heapq import heappop
 
 
-def informed(initial, goal):
+def informed_search(initial, goal):
 	# both inputs are 2D arrays with integer value in each cell.
     
     # record all the moves to achieve the goal in an ordered list
