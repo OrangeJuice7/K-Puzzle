@@ -35,9 +35,9 @@ def performace():
 	timer(test_3_2, goal_3, "test_3_2", False)
 	timer(test_3_3, goal_3, "test_3_3", False)
 
-	#timer(test_4_1, goal_4, "test_4_1", False)
-	#timer(test_4_2, goal_4, "test_4_2", False)
-	#timer(test_4_3, goal_4, "test_4_3", False)
+	# timer(test_4_1, goal_4, "test_4_1", False)
+	# timer(test_4_2, goal_4, "test_4_2", False)
+	# timer(test_4_3, goal_4, "test_4_3", False)
 
 	#timer(test_5_1, goal_5, "test_5_1", False)
 	#timer(test_5_2, goal_5, "test_5_2", False)
