@@ -1,4 +1,4 @@
-def uninformed(initial, goal):
+def uninformed_search(initial, goal):
 	# both inputs are 2D arrays with integer value in each cell.
     
     # record all the moves to achieve the goal in an ordered list
