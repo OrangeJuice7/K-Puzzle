@@ -4,8 +4,8 @@ class State(object):
 		self.is_initial = is_initial;
 		self.manhattan_distance_heuristic = manhattan_distance_heuristic
 
-	def calculate_heuristic():
+	def calculate_heuristic(self):
 		return self.manhattan_distance_heuristic
 
-	def get_grid_size():
+	def get_grid_size(self):
 		return len(self.grid)

@@ -3,5 +3,5 @@ class Move(object):
 		self.state = state
 		self.direction = direction
 
-	def get_state():
+	def get_state(self):
 		return self.state

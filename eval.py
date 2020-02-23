@@ -31,9 +31,9 @@ def performace():
 	goal_5 = [[1,2,3,4,5], [6,7,8,9,10], [11,12,13,14,15], [16,17,18,19,20], [21,22,23,24,0]]
 
 	# Test for uninformed search
-	timer(test_3_1, goal_3, "test_3_1", False)
-	timer(test_3_2, goal_3, "test_3_2", False)
-	timer(test_3_3, goal_3, "test_3_3", False)
+	# timer(test_3_1, goal_3, "test_3_1", False)
+	# timer(test_3_2, goal_3, "test_3_2", False)
+	# timer(test_3_3, goal_3, "test_3_3", False)
 
 	# timer(test_4_1, goal_4, "test_4_1", False)
 	# timer(test_4_2, goal_4, "test_4_2", False)
@@ -44,13 +44,13 @@ def performace():
 	#timer(test_5_3, goal_5, "test_5_3", False)
 
 	# Test for informed search
-	timer(test_3_1, goal_3, "test_3_1", True)
-	timer(test_3_2, goal_3, "test_3_2", True)
-	timer(test_3_3, goal_3, "test_3_3", True)
+	# timer(test_3_1, goal_3, "test_3_1", True)
+	# timer(test_3_2, goal_3, "test_3_2", True)
+	# timer(test_3_3, goal_3, "test_3_3", True)
 
-	#timer(test_4_1, goal_4, "test_4_1", True)
-	#timer(test_4_2, goal_4, "test_4_2", True)
-	#timer(test_4_3, goal_4, "test_4_3", True)
+	# timer(test_4_1, goal_4, "test_4_1", True)
+	timer(test_4_2, goal_4, "test_4_2", True)
+	timer(test_4_3, goal_4, "test_4_3", True)
 
 	#timer(test_5_1, goal_5, "test_5_1", True)
 	#timer(test_5_2, goal_5, "test_5_2", True)
@@ -69,10 +69,10 @@ def timer(test, goal, testname, is_informed):
 	print(testname + ": %.8f s" %(end - start))
 
 	# record optimal path length found
-	if (len(run) == 1 and run[0] == "UNSOLVABLE"):
+	if (isinstance(run, list) and len(run) == 1 and run[0] == "UNSOLVABLE"):
 		print("path length: UNSOLVABLE")
 	else:
-		print("path length: " + str(len(run)))
+		print("path length: " + str(run))
 
 
 
