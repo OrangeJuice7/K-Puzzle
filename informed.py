@@ -1,8 +1,5 @@
 from heapq import heappush
 from heapq import heappop
-from State import State
-from Move import Move
-from Path import Path
 
 '''
 informed_search is a method that defines the general procedure
@@ -14,17 +11,16 @@ sequence of moves to solve the puzzle. It will return unsolvable.
 
 def informed_search(initial, goal):
 	moves = _initialize_list()
-	visited_states = set()
-
+	visited_states = {}
+	initial = tuple(map(tuple, initial))
 	if _is_solvable(initial):
 		MDH_sum_beginning = calculate_manhattan_beginning(initial)
-		initial_state = State(initial, True, MDH_sum_beginning)
 		# path = _run_astar(initial_state, goal, visited_states)
-		path = _run_astar(initial, goal, visited_states)
+		path = _run_astar(initial, goal, visited_states, moves)
 		# path = _remove_sort_key(path)
 		# path = _remove_start_node(path)
 		# _add_moves(moves, path)
-		return path[2]
+		return path[3]
 		
 	else:
 		_mark_unsolvable(moves)
@@ -51,11 +47,8 @@ When the goal state is reached, we return the path from source to goal.
 
 '''
 
-def _run_astar(initial, goal, visited_states):
-
-	start = _create_move(initial, "-")
-	# source = (0, _initialize_path(start))
-	source = (0, initial, 0)
+def _run_astar(initial, goal, visited_states, moves):
+	source = (0, initial, 0, moves)
 	pq = []
 	heappush(pq, source)
 
@@ -63,6 +56,8 @@ def _run_astar(initial, goal, visited_states):
 		pq_node = heappop(pq)
 		# state = _get_most_recent_state(pq_node[1])
 		state = pq_node[1]
+		# print("ini state")
+		# print(state)
 		# if _is_reached(state.grid, goal):
 		# 	return pq_node
 
@@ -72,21 +67,23 @@ def _run_astar(initial, goal, visited_states):
 		x, y = _locate_blank(state)
 
 		if _is_moved_down(x, state):
-			_move_down(state, x, y, visited_states, pq, pq_node, pq_node[2])
+			_move_down(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
 
 		if _is_moved_right(y, state):
-			_move_right(state, x, y, visited_states, pq, pq_node, pq_node[2])
+			_move_right(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
 
 		if _is_moved_up(x, state):
-			_move_up(state, x, y, visited_states, pq, pq_node, pq_node[2])
+			_move_up(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
 
 		if _is_moved_left(y, state):
-			_move_left(state, x, y, visited_states, pq, pq_node, pq_node[2])
+			_move_left(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
 
 		# mark the current state as visited
 		# visit = tuple(map(tuple, state.grid))
-		visit = tuple(map(tuple, state))
-		visited_states.add(visit)
+		# visit = tuple(map(tuple, state))
+		# print("ini visit")
+		# print(visit)
+		visited_states[state] = 1
 
 
 def _heuristic_sum(previous_state, current_state, direction, x, y):
@@ -128,7 +125,7 @@ def _heuristic_sum(previous_state, current_state, direction, x, y):
 	
 	# Fill in as desired!
 
-# def _heuristic_sum_old(current_state):
+def _heuristic_sum_old(current_state):
 	# n = current_state.get_grid_size()
 	# total = 0
 
@@ -142,19 +139,19 @@ def _heuristic_sum(previous_state, current_state, direction, x, y):
 	# 		disy = abs(j - (num - 1) % n)
 	# 		total = total + disx + disy
 
-	# n = len(current_state)
-	# total = 0
+	n = len(current_state)
+	total = 0
 
-	# for i in range(0, n):
-	# 	for j in range(0, n):
-	# 		num = current_state[i][j]
-	# 		if num == 0:
-	# 			continue
-	# 		# offset = current pos - expected pos
-	# 		disx = abs(i - (num - 1) // n)
-	# 		disy = abs(j - (num - 1) % n)
-	# 		total = total + disx + disy
-	# return total
+	for i in range(0, n):
+		for j in range(0, n):
+			num = current_state[i][j]
+			if num == 0:
+				continue
+			# offset = current pos - expected pos
+			disx = abs(i - (num - 1) // n)
+			disy = abs(j - (num - 1) % n)
+			total = total + disx + disy
+	return total
 
 def _swap(state, nx, ny, ox, oy):
 	# transform = list(map(list, state.grid))
@@ -164,8 +161,6 @@ def _swap(state, nx, ny, ox, oy):
 	transform[nx][ny] = temp
 	
 	res = tuple(map(tuple, transform))
-
-	# return State(res, False, state.manhattan_distance_heuristic)
 	return res
 
 
@@ -189,7 +184,7 @@ def _locate_blank(state):
 def _is_reached(state, goal):
 	# check whether the current state is equal
 	# to the goal state
-	state = list(map(list, state))
+	# state = list(map(list, state))
 	for i in range(0, len(state)):
 		for j in range(0, len(state[0])):
 			if (state[i][j] != goal[i][j]): 
@@ -199,23 +194,35 @@ def _is_reached(state, goal):
 
 
 def _is_solvable(state):
-	# the puzzle is solvable if there are even number
+	# If k is odd, the puzzle is solvable if there are even number
 	# of inversion pairs; otherwise, it is not solvable
-	inv_count = 0
 
+	# Else if k is even, the puzzle is solvable if the blank tile is
+	# on the odd row and having an even inversion, or the blank tile is
+	# on the even row and having an odd inversion
+
+	inv_count = 0
+	blank_row = -1
 	# flattent the array from 2D into 1D
 	flat = []
 	for i in range(0, len(state)):
 		for j in range(0, len(state[0])):
-			flat.append(state[i][j])
+			if (state[i][j]) != 0:
+				flat.append(state[i][j])
+			else:
+				blank_row = len(state) - i
 
 	# count inversion pairs
-	for m in range(0, len(flat)-1):
+	for m in range(0, len(flat)):
 		for n in range(m, len(flat)):
 			if (flat[m] and flat[n] and flat[m] > flat[n]):
 				inv_count += 1
 
-	return inv_count % 2 == 0
+	if (len(state) % 2 == 1 or blank_row % 2 == 1):
+		return inv_count % 2 == 0
+
+	else:
+		return inv_count % 2 == 1
 
 '''
 _mark_unsolvable is an internal method to mark that the puzzle is not
@@ -319,7 +326,7 @@ _move_down moves the tile down to the blank tile.
 def distance(x1, y1, x2, y2):
 	return abs(x1-x2) + abs(y1 - y2)
 
-def _move_down(state, x, y, visited_states, pq, pq_node, length):
+def _move_down(state, x, y, visited_states, pq, pq_node, length, moves):
 	down = _swap(state, x-1, y, x, y)
 	# if down.grid not in visited_states:
 	# 	current_path = pq_node[1]
@@ -331,21 +338,22 @@ def _move_down(state, x, y, visited_states, pq, pq_node, length):
 	# 	# print(down.grid)
 	# 	new_node = (current_path.get_path_length() + down.manhattan_distance_heuristic, current_path)
 	# 	heappush(pq, new_node)
-
 	if down not in visited_states:
 		current_path = pq_node[1]
 		# _heuristic_sum(state, down, "down", x,y)
 		heuristic_value = _heuristic_sum_old(down)
 		# print("kontol bawah")
 		# print(down.grid)
-		new_node = (length + heuristic_value, down, length + 1)
+		new_moves = list(moves)
+		new_moves.append("DOWN")
+		new_node = (length + heuristic_value, down, length + 1, new_moves)
 		heappush(pq, new_node)
 
 '''
 _move_up moves the tile up to the blank tile.
 '''
 
-def _move_up(state, x, y, visited_states, pq, pq_node, length):
+def _move_up(state, x, y, visited_states, pq, pq_node, length, moves):
 	up = _swap(state, x+1, y, x, y)
 	# if up.grid not in visited_states:
 	# 	current_path = pq_node[1]
@@ -364,7 +372,9 @@ def _move_up(state, x, y, visited_states, pq, pq_node, length):
 		heuristic_value = _heuristic_sum_old(up)
 		# print("kontol bawah")
 		# print(down.grid)
-		new_node = (length + heuristic_value, up, length + 1)
+		new_moves = list(moves)
+		new_moves.append("UP")
+		new_node = (length + heuristic_value, up, length + 1, new_moves)
 		heappush(pq, new_node)
 
 
@@ -372,7 +382,7 @@ def _move_up(state, x, y, visited_states, pq, pq_node, length):
 _move_right moves the tile right to the blank tile.
 '''
 
-def _move_right(state, x, y, visited_states, pq, pq_node, length):
+def _move_right(state, x, y, visited_states, pq, pq_node, length, moves):
 	right = _swap(state, x, y-1, x, y)
 	# if right.grid not in visited_states:
 	# 	current_path = pq_node[1]
@@ -391,7 +401,9 @@ def _move_right(state, x, y, visited_states, pq, pq_node, length):
 		heuristic_value = _heuristic_sum_old(right)
 		# print("kontol bawah")
 		# print(down.grid)
-		new_node = (length + heuristic_value, right, length + 1)
+		new_moves = list(moves)
+		new_moves.append("RIGHT")
+		new_node = (length + heuristic_value, right, length + 1, new_moves)
 		heappush(pq, new_node)
 
 
@@ -399,7 +411,7 @@ def _move_right(state, x, y, visited_states, pq, pq_node, length):
 _move_left moves the tile left to the blank tile.
 '''
 
-def _move_left(state, x, y, visited_states, pq, pq_node, length):
+def _move_left(state, x, y, visited_states, pq, pq_node, length, moves):
 	left = _swap(state, x, y+1, x, y)
 	# if left.grid not in visited_states:
 	# 	current_path = pq_node[1]
@@ -418,7 +430,9 @@ def _move_left(state, x, y, visited_states, pq, pq_node, length):
 		heuristic_value = _heuristic_sum_old(left)
 		# print("kontol bawah")
 		# print(down.grid)
-		new_node = (length + heuristic_value, left, length + 1)
+		new_moves = list(moves)
+		new_moves.append("LEFT")
+		new_node = (length + heuristic_value, left, length + 1, new_moves)
 		heappush(pq, new_node)
 
 
