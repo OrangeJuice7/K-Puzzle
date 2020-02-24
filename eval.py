@@ -1,4 +1,4 @@
-from informed import informed_search
+from informed3 import informed_search
 from uninformed import uninformed_search
 import time
 
@@ -56,16 +56,16 @@ def performace():
 	# timer(test_3_2, goal_3, "test_3_2", True)
 	# timer(test_3_3, goal_3, "test_3_3", True)
 
-	# timer(test_4_1, goal_4, "test_4_1", True)
-	# timer(test_4_2, goal_4, "test_4_2", True)
-	# timer(test_4_3, goal_4, "test_4_3", True)
-	# timer(test_4_4, goal_4, "test_4_4", True)
+	timer(test_4_1, goal_4, "test_4_1", True)
+	timer(test_4_2, goal_4, "test_4_2", True)
+	timer(test_4_3, goal_4, "test_4_3", True)
+	timer(test_4_4, goal_4, "test_4_4", True)
 
-	timer(test_5_1, goal_5, "test_5_1", True)
-	timer(test_5_2, goal_5, "test_5_2", True)
-	timer(test_5_3, goal_5, "test_5_3", True)
-	timer(test_5_4, goal_5, "test_5_4", True)	
-	timer(test_5_5, goal_5, "test_5_5", True)
+	# timer(test_5_1, goal_5, "test_5_1", True)
+	# timer(test_5_2, goal_5, "test_5_2", True)
+	# timer(test_5_3, goal_5, "test_5_3", True)
+	# timer(test_5_4, goal_5, "test_5_4", True)	
+	# timer(test_5_5, goal_5, "test_5_5", True)
 
 def timer(test, goal, testname, is_informed):
 	# record elapsed time

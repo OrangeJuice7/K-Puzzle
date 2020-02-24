@@ -14,7 +14,7 @@ def informed_search(initial, goal):
 	visited_states = {}
 	initial = tuple(map(tuple, initial))
 	if _is_solvable(initial):
-		MDH_sum_beginning = calculate_manhattan_beginning(initial)
+		MDH_sum_beginning = calculate_misplaced_distance(initial)
 		# path = _run_astar(initial_state, goal, visited_states)
 		path = _run_astar(initial, goal, visited_states, moves)
 		# path = _remove_sort_key(path)
@@ -85,6 +85,9 @@ def _run_astar(initial, goal, visited_states, moves):
 		# print(visit)
 		visited_states[state] = 1
 
+'''
+Here we used Linear Conflict Heuristics
+'''
 
 def _heuristic_sum(previous_state, current_state, direction, x, y):
 	if direction == "down":
@@ -126,31 +129,13 @@ def _heuristic_sum(previous_state, current_state, direction, x, y):
 	# Fill in as desired!
 
 def _heuristic_sum_old(current_state):
-	# n = current_state.get_grid_size()
-	# total = 0
-
-	# for i in range(0, n):
-	# 	for j in range(0, n):
-	# 		num = current_state.grid[i][j]
-	# 		if num == 0:
-	# 			continue
-	# 		# offset = current pos - expected pos
-	# 		disx = abs(i - (num - 1) // n)
-	# 		disy = abs(j - (num - 1) % n)
-	# 		total = total + disx + disy
-
 	n = len(current_state)
 	total = 0
-
-	for i in range(0, n):
-		for j in range(0, n):
-			num = current_state[i][j]
-			if num == 0:
-				continue
-			# offset = current pos - expected pos
-			disx = abs(i - (num - 1) // n)
-			disy = abs(j - (num - 1) % n)
-			total = total + disx + disy
+	for i in range(n):
+		for j in range(n):
+			number = current_state[i][j]
+			if (number - 1) // n != i or (number - 1) % n != j:
+				total += 1;
 	return total
 
 def _swap(state, nx, ny, ox, oy):
@@ -437,13 +422,12 @@ def _move_left(state, x, y, visited_states, pq, pq_node, length, moves):
 
 
 
-def calculate_manhattan_beginning(initial):
+def calculate_misplaced_distance(initial):
 	n = len(initial)
-	dist = 0
+	total = 0
 	for i in range(n):
 		for j in range(n):
 			number = initial[i][j]
-			real_x_coordinate_of_number = (number-1) // n
-			real_y_coordinate_of_number = (number-1) % n
-			dist += distance(real_x_coordinate_of_number, real_y_coordinate_of_number, i, j)
-	return dist
+			if (number - 1) // n != i or (number - 1) % n != j:
+				total += 1;
+	return total
