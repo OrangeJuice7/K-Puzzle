@@ -68,41 +68,66 @@ The transition function $T: V \times A \to V$ is where $T(v,a) = v'$ with $v'$ b
 
 The problem is to determine if $g$ is reachable from a given initial state $s$, and if so, specify a sequence of actions $p \in A^\ast$ that leads from $s$ to $g$.
 
-Variables used throughout this report are defined in Appendix \ref{subsec:globaldef}.
+Throughout this report, the following variable definitions are used:
+
+Let $d$ be the depth of the shallowest goal node $g$.
+
+Let $b$ be the maximum branching factor of the problem space. $b = 3$, see \ref{subsec:branchingfactors}.
+
+%Please try to avoid rasterized images for line-art diagrams and schemas. Whenever possible, use vector graphics instead (see Fig.~\ref{fig1}).
+\begin{figure}
+	\centering
+	%\includegraphics[width=\textwidth]{coord_system.png}
+	\includegraphics{coord_system.png}
+	\caption{The coordinate system on the goal state, in the case of $n=3$.} \label{fig:coordsystem}
+\end{figure}
 
 
 
 \section{Technical Analysis}
+% Announcement: ``No, you do not need to formally prove the complexity of A* (if used) or any other search algorithm in the textbook, that's not the goal of the project.''
+% However, the project specs still say ``Each algorithm implemented should be analysed for correctness and complexity'' (1 mark)
+
 \subsection{Breadth-First Search (BFS) (Uninformed)}
 
-Description in Appendix \ref{subsec:algodescBFS}.
+BFS explores all reachable nodes of depth $d'$ before it starts exploring nodes of depth $d'+1$. Hence, there are at most $\sum_{i=0}^d b^i = \frac{b^d-1}{b-1} = \frac{3^d-1}{3-1} \in O(3^d)$ nodes that BFS will explore before it explores $g$.
 
-Correctness:
-The algorithm first checks for solvability (see Appendix \ref{subsec:solvability}), terminating if it is not. If a goal node $g$ exists, BFS explores a finite number of nodes (see \ref{subsec:algodescBFS}) before finding the shallowest goal node $g$. Then, it backtracks through its search tree to derive the sequence of actions that leads from $s$ to $g$. All actions that BFS has explored are valid, and the sequence leads from $s$ to $g$, therefore BFS returns a correct sequence.
+\subsubsection{Correctness}
+The algorithm first checks for solvability (see Appendix \ref{subsec:solvability}), terminating if it is not. If a goal node $g$ exists, BFS explores a finite number of nodes before finding the shallowest goal node $g$. Then, it backtracks through its search tree to derive the sequence of actions that leads from $s$ to $g$. All actions that BFS has explored are valid, and the sequence leads from $s$ to $g$, therefore BFS returns a correct sequence.
 
-Efficiency:
+\subsubsection{Efficiency}
 Each node is explored in constant time, thus BFS has $O(3^d)$ time complexity. BFS tracks all explored and seen nodes in memory, Which amount to at most $\sum_{i=1}^{d+1} b^i \in O(b^{d+1}) = O(b \cdot b^d) = O(3 \cdot 3^d) = O(3^d)$, thus BFS has $O(3^d)$ space complexity.
 
 \subsection{A* Search (Informed)}
 
-Description in Appendix \ref{subsec:algodescA*}.
+A* explores the node $v$ with the least estimated cost $f(v) = g(v) + h(v)$ to the shallowest goal node $g$, where $g(v)$ is the cost from the initial state $s$ to $v$, and $h(v)$ is an admissible estimate of the cost from $v$ to $g$.
 
-Correctness:
+Let $d(v,v')$ be the optimal distance between any two nodes $v$ and $v'$.
+
+Assuming $g$ exists, let $p$ be an optimal path from $s$ to $g$. For any node $v$ in $p$, note that $f(v) = g(v) + h(v) \leq g(v) + h^\ast(v) = d(s,n)+d(n,g) = d(s,g) = d$. Also note that at least one node in $p$ will be in the frontier of A* at any given point, hence there is always at least one node $v$ in the frontier with $f(v) \leq d$. Therefore, A* will explore at most all reachable nodes $v$ such that $f(v) \leq d$ before finding $g$. In particular, it will search at most all nodes $v$ of depth $d' = d(s,v) = g(v) \leq g(v)+h(v) = f(v) \leq d$. Hence, there are at most $\sum_{i=0}^d b^i = \frac{b^d-1}{b-1} = \frac{3^d-1}{3-1} \in O(3^d)$ nodes that A* will explore before it explores $g$.
+
+\subsubsection{Correctness}
 Same as with BFS above.
 
-Efficiency:
-Same as with BFS above, A* has $O(3^d)$ time and $O(3^d)$ space complexity, in the worst case (i.e. constant heuristic). The time complexity may be improved depending on the heuristic, see Appendix \ref{subsec:A*TimeComplexity}.
+\subsubsection{Efficiency}
+Same as with BFS above, A* has $O(3^d)$ time and $O(3^d)$ space complexity, in the worst case (i.e. constant heuristic). The time complexity may be improved depending on the heuristic, generally taking on the form $O(b^{d-h(s)})$, or $O((b^\ast)^d)$ (where $b^\ast$ is the effective branching factor of A* using $h$), see \cite{AIMA-A*Complexity}. At best, under the optimal heuristic $h^\ast$ (where $h^\ast(v)$ returns the actual cost from $v$ to $g$), A* runs in $O(d)$ time.
 
 \subsubsection{Heuristics}
-See Appendix \ref{subsec:heurdesc} for variable definitions.
+% Announcement: ``You do not need to prove admissibility/consistency for the Manhattan and misplaced tiles heuristics. Just for the new heuristic you come up by yourself.''
+
+For any (valid) state $v$ and any successor $v'$ of $v$, their difference is the position of a single tile $T$ (the empty cell is not counted), which has swapped places with the adjacent empty cell.
+Their absolute difference in cost $d(v,v') = 1$.
+Let $d_h(v,v') := h(v')-h(v)$ be their difference in heuristic cost.
 
 \paragraph{$h_1$: Sum of Manhattan distances of each (non-empty) tile from its final position.}
-Proof of consistency: $T$ is moved either closer to ($d_{h_1} = -1$) or farther away from ($d_{h_1} = 1$) its final position by a Manhattan distance of 1.
-In any case, $|d_{h_1}(v,v')|\leq 1 = d(v,v') \implies h_1(v) \leq d(v,v')+h_1(v')$, $\therefore$ $h_1$ is consistent. $\qed$
+This heuristic is consistent.
+%Proof of consistency: $T$ is moved either closer to ($d_{h_1} = -1$) or farther away from ($d_{h_1} = 1$) its final position by a Manhattan distance of 1.
+%In any case, $|d_{h_1}(v,v')|\leq 1 = d(v,v') \implies h_1(v) \leq d(v,v')+h_1(v')$, $\therefore$ $h_1$ is consistent. $\qed$
 
 \paragraph{$h_2$: Number of misplaced (non-empty) tiles.}
-Proof of consistency: $T$ is either placed on ($d_{h_2} = -1$), moved out of ($d_{h_2} = 1$), or remains away ($d_{h_2} = 0$) from its final position.
-In any case, $|d_{h_2}(v,v')|\leq 1 = d(v,v') \implies h_2(v) \leq d(v,v')+h_2(v')$, $\therefore$ $h_2$ is consistent. $\qed$
+This heuristic is consistent.
+%Proof of consistency: $T$ is either placed on ($d_{h_2} = -1$), moved out of ($d_{h_2} = 1$), or remains away ($d_{h_2} = 0$) from its final position.
+%In any case, $|d_{h_2}(v,v')|\leq 1 = d(v,v') \implies h_2(v) \leq d(v,v')+h_2(v')$, $\therefore$ $h_2$ is consistent. $\qed$
 
 \paragraph{$h_3$: Heu3 Heu3 Heu3 Heu3 Heu3 Heu3 Heu3 Heu3 Heu3 Heu3 Heu3.}
 Proof of consistency: $T$ is either placed on ($d_{h_2} = -1$), moved out of ($d_{h_2} = 1$), or remains away ($d_{h_2} = 0$) from its final position.
@@ -152,44 +177,11 @@ Inputs & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time ta
 As Table \ref{tab:results} shows, [A* with $h_1$ is better than BFS].
 This agrees with our theoretical analysis.
 
+% Announcement: ``Your report should at least be 2 pages long, and no longer than 4 pages''
+
 
 
 \appendix
-
-%\section{Appendix: Figures}
-%Please try to avoid rasterized images for line-art diagrams and schemas. Whenever possible, use vector graphics instead (see Fig.~\ref{fig1}).
-\begin{figure}
-	\centering
-	%\includegraphics[width=\textwidth]{coord_system.png}
-	\includegraphics{coord_system.png}
-	\caption{The coordinate system on the goal state, in the case of $n=3$.} \label{fig:coordsystem}
-\end{figure}
-
-\section{Appendix: Definitions and Descriptions}
-\subsection{Global Variables}
-\label{subsec:globaldef}
-Let $d$ be the depth of the shallowest goal node $g$.
-
-Let $b$ be the maximum branching factor of the problem space. $b = 3$, see \ref{subsec:branchingfactors}.
-
-\subsection{Breadth-First Search}
-\label{subsec:algodescBFS}
-BFS explores all reachable nodes of depth $d'$ before it starts exploring nodes of depth $d'+1$. Hence, there are at most $\sum_{i=0}^d b^i = \frac{b^d-1}{b-1} = \frac{3^d-1}{3-1} \in O(3^d)$ nodes that BFS will explore before it explores $g$.
-
-\subsection{A* Search}
-\label{subsec:algodescA*}
-A* explores the node $v$ with the least estimated cost $f(v) = g(v) + h(v)$ to the shallowest goal node $g$, where $g(v)$ is the cost from the initial state $s$ to $v$, and $h(v)$ is an admissible estimate of the cost from $v$ to $g$.
-
-Let $d(v,v')$ be the optimal distance between any two nodes $v$ and $v'$.
-
-Assuming $g$ exists, let $p$ be an optimal path from $s$ to $g$. For any node $v$ in $p$, note that $f(v) = g(v) + h(v) \leq g(v) + h^\ast(v) = d(s,n)+d(n,g) = d(s,g) = d$. Also note that at least one node in $p$ will be in the frontier of A* at any given point, hence there is always at least one node $v$ in the frontier with $f(v) \leq d$. Therefore, A* will explore at most all reachable nodes $v$ such that $f(v) \leq d$ before finding $g$. In particular, it will search at most all nodes $v$ of depth $d' = d(s,v) = g(v) \leq g(v)+h(v) = f(v) \leq d$. Hence, there are at most $\sum_{i=0}^d b^i = \frac{b^d-1}{b-1} = \frac{3^d-1}{3-1} \in O(3^d)$ nodes that A* will explore before it explores $g$.
-
-\subsection{Heuristics Variables}
-\label{subsec:heurdesc}
-For any (valid) state $v$ and any successor $v'$ of $v$, their difference is the position of a single tile $T$ (the empty cell is not counted), which has swapped places with the adjacent empty cell.
-Their absolute difference in cost $d(v,v') = 1$.
-Let $d_h(v,v') := h(v')-h(v)$ be their difference in heuristic cost.
-
 \section{Appendix: Proofs}
 \label{app:proofs}
 %\noindent Displayed equations are centered and set on a separate line.
@@ -248,31 +240,6 @@ $\qed$
 \paragraph{$(\impliedby)$}
 This is essentially a tedious proof by construction, and the proof is deferred. The general strategy is to move 1 to the right place and never move it again, then do the same with 2, then 3, and so on, up until the puzzle is solved.
 $\qed$
-
-\subsection{Time Complexity Improvements for A*}
-\label{subsec:A*TimeComplexity}
-
-\subsubsection{$O(b^{d - h(s)})$ Time Complexity}
-$O(b^{d - h(s)})$ time complexity is achieved when $h$ is consistent.
-\begin{proof}
-//.
-$\qed$
-\end{proof}
-
-\subsubsection{Polynomial Time Complexity}
-Polynomial time complexity is achieved when the heuristic satisfies the following condition:
-\begin{equation}
-|h(n) - h^\ast(n)| \in O(\log h^\ast(n))
-\end{equation}
-For a proof, see \cite{AIMA-A*PolyProof}.
-
-\subsubsection{Optimal Time Complexity}
-The optimal heuristic $h^\ast(n)$ is the actual cost from the node $n$ to the goal node $g$. Under this heuristic, and tie-breaking by exploring the deepest node first (so that only one shortest path is chosen, in case there are multiple), A* will explore exactly all the nodes in a shortest path from $s$ to $g$.
-\begin{proof}
-For any node $n$ along the optimal path, $f(n) = g(n)+h^\ast(n) = d$, since $g(n)$ is the optimal distance from $s$ to $n$ and $h^\ast(n)$ is the optimal distance from $n$ to $g$. For any other node $n$ not on an optimal path, $f(n) = g(n)+h^\ast(n) > d$, otherwise $n$ would actually be on an optimal path since it is on a path of length $d$. (A path from $s$ to $g$ cannot be less than $d$, otherwise $d$ would not be the actual depth of $g$.)
-$\qed$
-\end{proof}
-The time complexity of A* under $h^\ast(n)$ is $O(d)$, since $d$ nodes are explored from $s$ to $g$.
 
 
 
