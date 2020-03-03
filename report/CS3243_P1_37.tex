@@ -53,11 +53,6 @@ Mario Lorenzo}
 %
 %
 \section{Problem Specification}
-%\begin{enumerate}
-%\item A suitable representation should be specified to define the problem
-%\item It should facilitate the formulation of search-based solutions
-%\end{enumerate}
-
 Fix $n \in \bbbz_{\geq 2}$. Let $k = n^2 -1$.
 A valid state $v$ is a $n \times n$ array with the entries $v_{(x,y)}$ containing a permutation of the integers $[0,k]$. $V$ is the set of valid states.
 Each valid state has a unique coordinate $e = (x_e,y_e)$ such that $v_e = 0$. Call $v_e$ the empty cell of $v$.
@@ -77,7 +72,6 @@ Let $b$ be the maximum branching factor of the problem space. $b = 3$, see \ref{
 %Please try to avoid rasterized images for line-art diagrams and schemas. Whenever possible, use vector graphics instead (see Fig.~\ref{fig1}).
 \begin{figure}
 	\centering
-	%\includegraphics[width=\textwidth]{coord_system.png}
 	\includegraphics{coord_system.png}
 	\caption{The coordinate system on the goal state, in the case of $n=3$.} \label{fig:coordsystem}
 \end{figure}
@@ -110,7 +104,7 @@ Assuming $g$ exists, let $p$ be an optimal path from $s$ to $g$. For any node $v
 Same as with BFS above.
 
 \subsubsection{Efficiency}
-Same as with BFS above, A* has $O(3^d)$ time and $O(3^d)$ space complexity, in the worst case (i.e. constant heuristic). The time complexity may be improved depending on the heuristic, generally taking on the form $O(b^{d-h(s)})$, or $O((b^\ast)^d)$ (where $b^\ast$ is the effective branching factor of A* using $h$), see \cite{AIMA-A*Complexity}. At best, under the optimal heuristic $h^\ast$ (where $h^\ast(v)$ returns the actual cost from $v$ to $g$), A* runs in $O(d)$ time.
+Same as with BFS above, A* has $O(3^d)$ time and $O(3^d)$ space complexity, in the worst case (i.e. constant heuristic). The time complexity may be improved depending on the heuristic, generally taking on the form $O(b^{d-h(s)})$, or $O((b^\ast)^d)$ (where $b^\ast$ is the effective branching factor of A* using $h$, which has to be empirically measured), see \cite{AIMA-A*Complexity}. At best, under the optimal heuristic $h^\ast$ (where $h^\ast(v)$ returns the actual cost from $v$ to $g$), A* runs in $O(d)$ time.
 
 \subsubsection{Heuristics}
 % Announcement: ``You do not need to prove admissibility/consistency for the Manhattan and misplaced tiles heuristics. Just for the new heuristic you come up by yourself.''
@@ -137,35 +131,99 @@ In any case, $|d_{h_2}(v,v')|\leq 1 \implies h_2(v) \leq 1+h_2(v') = d(v,v')+h_2
 
 \section{Experimental Setup}
 
-%The performances of BFS and A*-search with each of the three heuristics have been experimentally measured, and consolidated in Table \ref{tab:results}.
-The inputs used draw with a uniform random distribution from a specified subset of valid initial states, and the average results from 200 inputs were taken for each experiment. The metrics used are the absolute time taken to obtain an output, and the number of nodes seen. These metrics directly reflect the time and memory requirements of each algorithm respectively.
+The performances of BFS and A*-search with each of the three heuristics have been experimentally measured, and consolidated in Table \ref{tab:aresults} and plotted in Figure \ref{fig:results}.
+% There's a bug where \ref{tab:results} would wrongly give 2 instead of 1. :/
+
+Inputs are drawn with a uniform random distribution from the set of $n \times n$ solvable initial states. The optimal depth $d$ is measured using BFS, and the initial state is categorized accordingly. 2000 initial states for each listed depth are tested.
+The metrics used are the absolute time taken to obtain an output, and the number of nodes seen. These metrics directly reflect the time and memory requirements of each algorithm respectively.
 
 The algorithms were coded in Python 2.6 and the experiments were run on a [OS] machine with a [processor] and 16 GB of RAM. Absolute time was measured with \texttt{[Python time library]}.
 
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=\textwidth]{results_time.png}
+	%\includegraphics[width=\textwidth]{results_space.png}
+	\caption{Plot of the performance results of the proposed algorithms.} \label{fig:results}
+\end{figure}
+
 % If there was a more lax report length requirement, it could be neater to split this into a time table and #nodes table
-\begin{table}[h]
+\begin{table}[p]
 \centering
 \caption{Performance results of the proposed algorithms.}
-\label{tab:results}
+\label{tab:aresults}
 \begin{tabular}{|c|
 		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
 		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
 		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
 		>{\centering}p{0.105\textwidth}|>{\centering\arraybackslash}p{0.095\textwidth}|} % compile error without \arraybackslash for some reason
 \hline
+      3x3
       & \multicolumn{2}{c|}{BFS} & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
 \hline
-Inputs & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
+Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
 \hline
-3x3 Solvable   & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-3x3 All        & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 2  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 4  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 6  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 8  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+10  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+12  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+14  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+16  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+18  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+20  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+22  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+24  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
 \hline
-4x4 Solvable   & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-4x4 All        & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+\end{tabular}
+\begin{tabular}{|c|
+		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
+		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
+		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
+		>{\centering}p{0.105\textwidth}|>{\centering\arraybackslash}p{0.095\textwidth}|}
 \hline
-5x5 Solvable   & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-5x5 All        & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-5x5 Unsolvable & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+      4x4
+      & \multicolumn{2}{c|}{BFS} & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
+\hline
+Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
+\hline
+ 2  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 4  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 6  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 8  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+10  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+12  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+14  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+16  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+18  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+20  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+22  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+24  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+\hline
+\end{tabular}
+\begin{tabular}{|c|
+		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
+		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
+		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
+		>{\centering}p{0.105\textwidth}|>{\centering\arraybackslash}p{0.095\textwidth}|}
+\hline
+      5x5
+      & \multicolumn{2}{c|}{BFS} & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
+\hline
+Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
+\hline
+ 2  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 4  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 6  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 8  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+10  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+12  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+14  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+16  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+18  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+20  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+22  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+24  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
 \hline
 \end{tabular}
 \end{table}
@@ -173,14 +231,15 @@ Inputs & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time ta
 
 
 \section{Results and Discussion}
+The average time and space complexities for all algorithms are $O(1.667^d)$ for 3x3, $O(2^d)$ for 4x4, and $O(2.2^d)$ for 5x5. (See see \ref{subsec:branchingfactors} for the average branching factor.) The empirical results in Figure \ref{fig:results} supports this analysis.
 
-As Table \ref{tab:results} shows, [A* with $h_1$ is better than BFS].
-This agrees with our theoretical analysis.
+Table \ref{tab:results} also shows that the algorithms in order of most to least time-efficient is A* with $h_1$, then A* with $h_2$, then BFS. This agrees with our theoretical analysis regarding the dominance of one heuristic over another.
 
 % Announcement: ``Your report should at least be 2 pages long, and no longer than 4 pages''
 
 
 
+\pagebreak
 \appendix
 \section{Appendix: Proofs}
 \label{app:proofs}
