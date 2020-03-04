@@ -61,7 +61,7 @@ The goal state $g$ is where $g_{(x,y)} = (x-1)n+y$ for all $(x,y) \in (\bbbz_{[1
 Let $A = \{\texttt{up}=(-1,0),\texttt{down}=(1,0),\texttt{left}=(0,-1),\texttt{right}=(0,1)\}$ be the set of actions.
 The transition function $T: V \times A \to V$ is where $T(v,a) = v'$ with $v'$ being identical to $v$ except with $(v'_{e-a},v'_e) = (v_e,v_{e-a})$.% (Invalid output states are rejected.)
 
-The problem is to determine if $g$ is reachable from a given initial state $s$, and if so, specify a sequence of actions $p \in A^\ast$ that leads from $s$ to $g$.
+The problem is to determine if $g$ is reachable from a given initial state $s$, and if so, specify a sequence of actions $p \in A^\ast$ (called a solution) that leads from $s$ to $g$.
 
 Throughout this report, the following variable definitions are used:
 
@@ -72,7 +72,7 @@ Let $b$ be the maximum branching factor of the problem space. $b = 3$, see \ref{
 %Please try to avoid rasterized images for line-art diagrams and schemas. Whenever possible, use vector graphics instead (see Fig.~\ref{fig1}).
 \begin{figure}
 	\centering
-	\includegraphics{coord_system.png}
+	\includegraphics[height=2cm]{coord_system.png}
 	\caption{The coordinate system on the goal state, in the case of $n=3$.} \label{fig:coordsystem}
 \end{figure}
 
@@ -86,8 +86,9 @@ Let $b$ be the maximum branching factor of the problem space. $b = 3$, see \ref{
 
 BFS explores all reachable nodes of depth $d'$ before it starts exploring nodes of depth $d'+1$. Hence, there are at most $\sum_{i=0}^d b^i = \frac{b^d-1}{b-1} = \frac{3^d-1}{3-1} \in O(3^d)$ nodes that BFS will explore before it explores $g$.
 
-\subsubsection{Correctness}
+\subsubsection{Correctness and Optimality}
 The algorithm first checks for solvability (see Appendix \ref{subsec:solvability}), terminating if it is not. If a goal node $g$ exists, BFS explores a finite number of nodes before finding the shallowest goal node $g$. Then, it backtracks through its search tree to derive the sequence of actions that leads from $s$ to $g$. All actions that BFS has explored are valid, and the sequence leads from $s$ to $g$, therefore BFS returns a correct sequence.
+BFS finds an optimal solution because it explores all nodes of depth $d-1$ before it explores nodes of depth $d$. If there were another solution at depth $d-1$ or closer, BFS would have found it first.
 
 \subsubsection{Efficiency}
 Each node is explored in constant time, thus BFS has $O(3^d)$ time complexity. BFS tracks all explored and seen nodes in memory, Which amount to at most $\sum_{i=1}^{d+1} b^i \in O(b^{d+1}) = O(b \cdot b^d) = O(3 \cdot 3^d) = O(3^d)$, thus BFS has $O(3^d)$ space complexity.
@@ -100,7 +101,7 @@ Let $d(v,v')$ be the optimal distance between any two nodes $v$ and $v'$.
 
 Assuming $g$ exists, let $p$ be an optimal path from $s$ to $g$. For any node $v$ in $p$, note that $f(v) = g(v) + h(v) \leq g(v) + h^\ast(v) = d(s,n)+d(n,g) = d(s,g) = d$. Also note that at least one node in $p$ will be in the frontier of A* at any given point, hence there is always at least one node $v$ in the frontier with $f(v) \leq d$. Therefore, A* will explore at most all reachable nodes $v$ such that $f(v) \leq d$ before finding $g$. In particular, it will search at most all nodes $v$ of depth $d' = d(s,v) = g(v) \leq g(v)+h(v) = f(v) \leq d$. Hence, there are at most $\sum_{i=0}^d b^i = \frac{b^d-1}{b-1} = \frac{3^d-1}{3-1} \in O(3^d)$ nodes that A* will explore before it explores $g$.
 
-\subsubsection{Correctness}
+\subsubsection{Correctness and Optimality}
 Same as with BFS above.
 
 \subsubsection{Efficiency}
@@ -115,17 +116,29 @@ Let $d_h(v,v') := h(v')-h(v)$ be their difference in heuristic cost.
 
 \paragraph{$h_1$: Sum of Manhattan distances of each (non-empty) tile from its final position.}
 This heuristic is consistent.
-%Proof of consistency: $T$ is moved either closer to ($d_{h_1} = -1$) or farther away from ($d_{h_1} = 1$) its final position by a Manhattan distance of 1.
+%Proof of consistency: $T$ moves either closer to ($d_{h_1} = -1$) or farther away from ($d_{h_1} = 1$) its final position by a Manhattan distance of 1.
 %In any case, $|d_{h_1}(v,v')|\leq 1 = d(v,v') \implies h_1(v) \leq d(v,v')+h_1(v')$, $\therefore$ $h_1$ is consistent. $\qed$
 
 \paragraph{$h_2$: Number of misplaced (non-empty) tiles.}
 This heuristic is consistent.
-%Proof of consistency: $T$ is either placed on ($d_{h_2} = -1$), moved out of ($d_{h_2} = 1$), or remains away ($d_{h_2} = 0$) from its final position.
+%Proof of consistency: $T$ either moves onto ($d_{h_2} = -1$), moves out of ($d_{h_2} = 1$), or remains away ($d_{h_2} = 0$) from its final position.
 %In any case, $|d_{h_2}(v,v')|\leq 1 = d(v,v') \implies h_2(v) \leq d(v,v')+h_2(v')$, $\therefore$ $h_2$ is consistent. $\qed$
 
-\paragraph{$h_3$: Heu3 Heu3 Heu3 Heu3 Heu3 Heu3 Heu3 Heu3 Heu3 Heu3 Heu3.}
-Proof of consistency: $T$ is either placed on ($d_{h_2} = -1$), moved out of ($d_{h_2} = 1$), or remains away ($d_{h_2} = 0$) from its final position.
-In any case, $|d_{h_2}(v,v')|\leq 1 \implies h_2(v) \leq 1+h_2(v') = d(v,v')+h_2(v')$, $\therefore$ $h_2$ is consistent. $\qed$
+\paragraph{$h_3$: Linear conflicts. \cite{Hansson92}}
+This heuristic is a refinement of $h_1$. A pair of tiles are in horizontal (resp. vertical) \textit{linear conflict} if they are in the same row (resp. column), both their goal positions are also in the same row (column), and they have to cross over one another in order to reach their goal positions. In order to swap the two tiles, one of the tiles has to minimally move out of the row (column) to let the other tile pass, then move back into the row (column) after the two tiles have moved past each other, incurring an additional cost of at least 2.
+
+In a row (or column) with multiple conflicts, the tile with the most conflicts is identified and moved out, incurring a cost of 2. The remaining row is then scanned for conflicts again and the tile with the most conflicts is again identified and removed. This process continues until the row has no more conflicts. This process identifies the minimum number of tiles needed to be displaced in order to resolve all conflicts in the row.
+
+Thus, $h_3(v) := h_1(v) + h_3'(v)$, where $h_3'(v) = 2 \sum_{i=1}^n (l(r_i) + l(c_i))$, where $r_i$ (resp. $c_i$) denotes the $i$-th row (resp. column) in state $v$, and $l(r)$ (resp. $l(c)$) is the total number of tiles that are displaced in order to clear row $r$ (resp. column $c$) of conflicts.
+
+Proof of consistency:
+For each move, $T$ either moves out of its goal row (or column), stays out of its goal row, stays in its goal row, or moves into its goal row.
+If $T$ moves out of its goal row, it necessarily moves farther away from its goal position, thus $d_{h_1} = 1$. $T$ may or may not have been a tile that was identified for removal. If it was, then $d_{h_3'} = -2$, thus $d_{h_3} = 1-2 = -1$. If not, then $d_{h_3'} = 0$, thus $d_{h_3} = 1+0 = 1$.
+If $T$ stays out of or in its goal row, it neither creates nor resolves any linear conflicts. It may either move closer to ($d_{h_3} = d_{h_1} = -1$) or farther away from ($d_{h_3} = d_{h_1} = 1$) its goal position.
+If $T$ moves into its goal row, it necessarily moves closer to its goal position, thus $d_{h_1} = -1$. $T$ may or may not introduce new linear conflicts. If it does, then it increases the number of tiles that need to be removed to resolve all conflicts by just 1, thus $d_{h_3'} = 2$, thus $d_{h_3} = -1+2 = 1$. If it does not, then $d_{h_3'} = 0$, thus $d_{h_3} = -1+0 = -1$.
+In all cases, $|d_{h_3}(v,v')|\leq 1 \implies h_3(v) \leq 1+h_3(v') = d(v,v')+h_3(v')$, $\therefore$ $h_3$ is consistent. $\qed$
+
+%The calculation of this heuristic may be reduced to a table lookup, by pre-computing the number of linear conflicts given a row.
 
 
 
@@ -137,7 +150,7 @@ The performances of BFS and A*-search with each of the three heuristics have bee
 Inputs are drawn with a uniform random distribution from the set of $n \times n$ solvable initial states. The optimal depth $d$ is measured using BFS, and the initial state is categorized accordingly. 2000 initial states for each listed depth are tested.
 The metrics used are the absolute time taken to obtain an output, and the number of nodes seen. These metrics directly reflect the time and memory requirements of each algorithm respectively.
 
-The algorithms were coded in Python 2.6 and the experiments were run on a [OS] machine with a [processor] and 16 GB of RAM. Absolute time was measured with \texttt{[Python time library]}.
+The algorithms were coded in Python 2.6 and the experiments were run on a [OS] machine with a [processor] and 16 GB of RAM. Absolute time was measured with Python's \texttt{time} package.
 
 \begin{figure}[h!]
 	\centering
@@ -145,6 +158,17 @@ The algorithms were coded in Python 2.6 and the experiments were run on a [OS] m
 	%\includegraphics[width=\textwidth]{results_space.png}
 	\caption{Plot of the performance results of the proposed algorithms.} \label{fig:results}
 \end{figure}
+
+
+
+\section{Results and Discussion}
+The average time and space complexities for all algorithms are $O(1.667^d)$ for 3x3, $O(2^d)$ for 4x4, and $O(2.2^d)$ for 5x5. (See see \ref{subsec:branchingfactors} for the average branching factor.) The empirical results in Figure \ref{fig:results} supports this analysis.
+
+Figure \ref{fig:results} also shows that the algorithms in order of most to least time-efficient is A* with $h_3$, A* with $h_1$, A* with $h_2$, then finally BFS. This agrees with our theoretical analysis regarding the dominance of one heuristic over another (where BFS may be regarded as A* with a heuristic that returns 0 everywhere).
+
+% Announcement: ``Your report should at least be 2 pages long, and no longer than 4 pages''
+
+
 
 % If there was a more lax report length requirement, it could be neater to split this into a time table and #nodes table
 \begin{table}[p]
@@ -230,15 +254,6 @@ Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time
 
 
 
-\section{Results and Discussion}
-The average time and space complexities for all algorithms are $O(1.667^d)$ for 3x3, $O(2^d)$ for 4x4, and $O(2.2^d)$ for 5x5. (See see \ref{subsec:branchingfactors} for the average branching factor.) The empirical results in Figure \ref{fig:results} supports this analysis.
-
-Table \ref{tab:results} also shows that the algorithms in order of most to least time-efficient is A* with $h_1$, then A* with $h_2$, then BFS. This agrees with our theoretical analysis regarding the dominance of one heuristic over another.
-
-% Announcement: ``Your report should at least be 2 pages long, and no longer than 4 pages''
-
-
-
 \pagebreak
 \appendix
 \section{Appendix: Proofs}
@@ -257,15 +272,15 @@ Table \ref{tab:results} also shows that the algorithms in order of most to least
 
 Note: In the case $n=2$, each cell is a corner cell and thus has only 2 actions, and 1 of them backtracks and thus is discounted. Thus $b = 1$ in this case. (Only the initial node has 2 branches.) The complexities evaluated as $O(b^d)$ become wrong in this case as $O(1^d) = O(1)$, and they should be $O(d)$ instead.
 
-\paragraph{Average branching factor.} Given $n$, there are $4$ corners of 2 branches each, $4(n-2)$ side cells of 3 branches each, and $(n-2)^2$ center cells of 4 branches each. We may subtract 1 from each of the total branches as we discount backtracking actions. (This is not applicable only to the initial state, which incurs only a constant factor.) Assuming all states are equally likely to occur, the average branching factor $b_\text{avg}$ is thus $\frac{1\cdot 4 + 2\cdot 4(n-2) + 3\cdot (n-2)^2}{n^2} = \frac{4 + 8n - 16 + 3n^2 - 12n + 12}{n^2} = \frac{3n^2 - 4n}{n^2} = 3 - \frac{4}{n}$. $\qed$
+\paragraph{Average branching factor.} Given $n$, there are $4$ corner cells of 2 branches each, $4(n-2)$ side cells of 3 branches each, and $(n-2)^2$ center cells of 4 branches each. We may subtract 1 from each of the total branches as we discount backtracking actions. (This is not applicable only to the initial state, which incurs only a constant factor.) Assuming all states are equally likely to occur, the average branching factor $b_\text{avg}$ is thus $\frac{1\cdot 4 + 2\cdot 4(n-2) + 3\cdot (n-2)^2}{n^2} = \frac{4 + 8n - 16 + 3n^2 - 12n + 12}{n^2} = \frac{3n^2 - 4n}{n^2} = 3 - \frac{4}{n}$. $\qed$
 
 \begin{table}[h]
 \centering
 \caption{Average branching factor for some values of $n$.}
 \label{tab:results}
-\begin{tabular}{|c||c|c|c|c|} \hline
-$n$            & 2 &   3 & 4 & 5 \\ \hline
-$b_\text{avg}$ & 1 & 5/3 & 2 & 2.2 \\ \hline
+\begin{tabular}{|c||c|c|c|c|c|c|c|} \hline
+$n$            & 2 & 3   & 4 & 5   & 6   &  7   & 8 \\ \hline
+$b_\text{avg}$ & 1 & 5/3 & 2 & 2.2 & 7/3 & 17/7 & 2.5 \\ \hline
 \end{tabular}
 \end{table}
 
