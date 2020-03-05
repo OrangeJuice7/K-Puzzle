@@ -56,7 +56,6 @@ Mario Lorenzo}
 Fix $n \in \bbbz_{\geq 2}$. Let $k = n^2 -1$.
 A valid state $v$ is a $n \times n$ array with the entries $v_{(x,y)}$ containing a permutation of the integers $[0,k]$. $V$ is the set of valid states.
 Each valid state has a unique coordinate $e = (x_e,y_e)$ such that $v_e = 0$. Call $v_e$ the empty cell of $v$.
-An initial state $s$ is a valid state with $e = (n,n)$.
 The goal state $g$ is where $g_{(x,y)} = (x-1)n+y$ for all $(x,y) \in (\bbbz_{[1,n]})^2$, except for $g_{(n,n)}$ which is $0$.
 Let $A = \{\texttt{up}=(-1,0),\texttt{down}=(1,0),\texttt{left}=(0,-1),\texttt{right}=(0,1)\}$ be the set of actions.
 The transition function $T: V \times A \to V$ is where $T(v,a) = v'$ with $v'$ being identical to $v$ except with $(v'_{e-a},v'_e) = (v_e,v_{e-a})$.% (Invalid output states are rejected.)
@@ -267,12 +266,14 @@ Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time
 % 'remark', and 'example' are defined in the LLNCS documentclass as well.
 
 \subsection{Maximum and Average Branching Factors}
+When determining the branching factor, backtracking actions that lead right back to the previous state are discounted, as that state has already been explored. This reduces the possible number of actions in all cases by 1, except for the initial state. However, the initial state incurs only a constant factor with regards to complexity analysis of the search tree, thus it can be safely ignored.
+
 \label{subsec:branchingfactors}
-\paragraph{Maximum branching factor.} Given any valid state, there are up to $|A|=4$ possible actions. However, the initial state only has 2 possible actions, and every state thereafter has an action that backtracks and can thus be discounted, thus $b = |A|-1 = 3$. $\qed$
+\paragraph{Maximum branching factor.} Given any valid state, there are up to $|A|=4$ possible actions. After discounting backtracking actions, the maximum branching factor $b = |A|-1 = 3$. $\qed$
 
-Note: In the case $n=2$, each cell is a corner cell and thus has only 2 actions, and 1 of them backtracks and thus is discounted. Thus $b = 1$ in this case. (Only the initial node has 2 branches.) The complexities evaluated as $O(b^d)$ become wrong in this case as $O(1^d) = O(1)$, and they should be $O(d)$ instead.
+Note: In the case $n=2$, each cell is a corner cell and thus has only 2 actions, and 1 of them backtracks and thus is discounted. Thus $b = 1$ in this case. The complexities evaluated as $O(b^d)$ become wrong in this case as $O(1^d) = O(1)$, and they should be $O(d)$ instead.
 
-\paragraph{Average branching factor.} Given $n$, there are $4$ corner cells of 2 branches each, $4(n-2)$ side cells of 3 branches each, and $(n-2)^2$ center cells of 4 branches each. We may subtract 1 from each of the total branches as we discount backtracking actions. (This is not applicable only to the initial state, which incurs only a constant factor.) Assuming all states are equally likely to occur, the average branching factor $b_\text{avg}$ is thus $\frac{1\cdot 4 + 2\cdot 4(n-2) + 3\cdot (n-2)^2}{n^2} = \frac{4 + 8n - 16 + 3n^2 - 12n + 12}{n^2} = \frac{3n^2 - 4n}{n^2} = 3 - \frac{4}{n}$. $\qed$
+\paragraph{Average branching factor.} Given $n$, there are $4$ corner cells of 2 branches each, $4(n-2)$ side cells of 3 branches each, and $(n-2)^2$ center cells of 4 branches each. Discount the backtracking action from each case. Assuming all states are equally likely to occur, the average branching factor $b_\text{avg}$ is thus $\frac{1\cdot 4 + 2\cdot 4(n-2) + 3\cdot (n-2)^2}{n^2} = \frac{4 + 8n - 16 + 3n^2 - 12n + 12}{n^2} = \frac{3n^2 - 4n}{n^2} = 3 - \frac{4}{n}$. $\qed$
 
 \begin{table}[h]
 \centering
@@ -286,29 +287,34 @@ $b_\text{avg}$ & 1 & 5/3 & 2 & 2.2 & 7/3 & 17/7 & 2.5 \\ \hline
 
 \subsection{Solvability of an Initial State \cite{Solvability}}
 \label{subsec:solvability}
-\begin{lemma}\label{lem:evennumofvertactions}
-It always takes an even number of vertical actions to get from any (solvable) initial state $s$ to the goal state $g$ (or equivalently, from $g$ to $s$).
-\end{lemma}
-\begin{proof}
-Colour the board black and white in alternating rows, with the bottom row coloured white. On every vertical action, the empty cell either moves from a white row to a black row, or from a black row to a white row. The empty cell starts on a white row and ends on a white row, which requires an even number of vertical actions. $\qed$
-\end{proof}
-
 \begin{definition}\label{def:inversion}
 For any given state $v$, write out its entries in a sequence $S(v)$, ignoring the empty cell. i.e. $S(v)_i = v_{(\lceil i/n\rceil, ((i-1) \mod n) +1)}$ for $i \in \bbbz_{[1,n^2]}$, then remove the empty cell from $S(v)$ (so it is now indexed from $1$ to $k$). An \textbf{inversion} is a pair of indices $(i,j)$ such that $i < j$, but $S(v)_i > S(v)_j$.
 \end{definition}
 Every state $v$ has a well-defined number of distinct inversions, denote it $I(v)$. $I(v)$ can be calculated by tallying how many distinct pairs in $v$ are inversions, which takes $O(k^2)$ time as there are $^kC_2 = \frac{k(k+1)}{2}$ pairs to check.
 
+Given a state $v$, let $e_r(v) = n - x_e(v)$ be the row of the empty cell as counted from the bottom, and starting at 0.
+
 \begin{theorem}\label{thm:solvability}
-An initial state $s$ is solvable if and only if $I(s)$ is even.
+An initial state $s$ is solvable if and only if one of the following (mutually exclusive) cases is true:
+\begin{enumerate}
+\item $n$ is odd and $I(s)$ is even.
+\item $n$ is even, and $I(s)$ has the same parity as $e_r(s)$.
+\end{enumerate}
 \end{theorem}
 \paragraph{$(\implies)$}
 A solvable state is one that can reach the goal state $g$ in a finite number of actions. Since each action is reversible by an opposite action, this can be restated as: A state is solvable if and only if it is reachable from $g$ in a finite number of actions.
 
-Now given a solvable initial state $s$, consider a sequence of actions taken to move from $g$ to $s$, and how $I(v)$ changes across it. For each action, consider its start state $v$ and result state $v'$. If an action moves horizontally, $S(v) = S(v')$, thus $I(v') = I(v)$.
+Now given a solvable initial state $s$, consider a sequence of actions taken to move from $g$ to $s$, and how $I(v)$ changes across it. For each action, consider its start state $v$ and result state $v'$.
 
-If an action moves vertically, then $n-1$ swaps between adjacent elements occur from $S(v)$ to $S(v')$, and each swap either introduces or resolves an inversion, which flips the parity of $I(v')$. If $n$ is odd, then the number of swaps $n-1$ is even and thus the parity of $I(v')$ is always the same as $I(v)$. If $n$ is even, then $n-1$ is odd and thus the parity of $I(v')$ is always different from $I(v)$.
+If an action moves horizontally, $S(v) = S(v')$, thus $I(v') = I(v)$.
 
-It has thus been shown that the parity of $I(v)$ flips only when $n$ is even and a vertical action is taken. Even then, by Lemma \ref{lem:evennumofvertactions}, there are an even number of vertical actions, and thus the parity of $I(v)$ flips an even number of times over the entire path from $g$ to $s$. Therefore, $I(s)$ has the same parity as $I(g)$. And $I(g) = 0$ is even.
+If an action moves vertically, then $n-1$ swaps between adjacent elements occur from $S(v)$ to $S(v')$, and each swap either introduces or resolves an inversion, which flips the parity of $I(v')$.
+
+If $n$ is odd, then the number of swaps $n-1$ is even and thus the parity of $I(v')$ is always the same as $I(v)$. Thus, the parity of $I(v)$ stays the same over the entire path from $g$ to $s$. Therefore, $I(s)$ has the same parity as $I(g)$. And $I(g) = 0$ is even.
+
+If $n$ is even, then $n-1$ is odd and thus the parity of $I(v')$ is always different from $I(v)$ (when the action is vertical).
+
+If $e_r(s)$ is even (resp. odd), then the number of vertical actions taken to get to $g$ is even (resp. odd) as well. Thus, the parity of $I(v)$ flips an even (resp. odd) number of times over the entire path from $g$ to $s$. Therefore, $I(s)$ has the same (resp. different) parity as $I(g) = 0$, which is even.
 $\qed$
 
 \paragraph{$(\impliedby)$}
