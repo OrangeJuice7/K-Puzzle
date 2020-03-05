@@ -85,7 +85,7 @@ class Puzzle(object):
                 pq_node.append(node_seen)
                 return pq_node
 
-            if visited_states[state] == 1:
+            if state in visited_states:
                 continue
 
             x, y = self._locate_blank(state)
