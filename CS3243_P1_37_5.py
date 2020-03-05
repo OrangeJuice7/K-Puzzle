@@ -1,7 +1,7 @@
 from CS3243_P1_37_1 import uninformed_search_test
 from CS3243_P1_37_2 import informed_search_manhattan_test
-from CS3243_P1_37_3 import informed_search_linear_conflict_test
-from CS3243_P1_37_4 import informed_search_misplaced_tile_test
+from CS3243_P1_37_3 import informed_search_misplaced_tile_test
+from CS3243_P1_37_4 import informed_search_linear_conflict_test
 import time
 import random
 import math
@@ -50,7 +50,7 @@ def performance():
     n = int(input())
     print("Please enter the number of tests you want to run:")
     t = int(input())
-    print("Please enter the mode you want to use:\n1. BFS Uninformed\n2. A* with Manhattan Distance Heuristic\n3. A* with Linear Conflict Heuristic\n4. A* with Misplaced Tile Heuristic")
+    print("Please enter the mode you want to use:\n1. BFS Uninformed\n2. A* with Manhattan Distance Heuristic\n3. A* with Misplaced Tile Heuristic\n4. A* with Linear Conflict Heuristic")
     h = int(input())
     times = []
     test_names = ["BFS Uninformed", "A* with Manhattan Distance Heuristic", "A* with Linear Conflict Heuristic", "A* with Misplaced Tile Heuristic"]
@@ -68,9 +68,9 @@ def timer(test, goal, testname, mode):
     elif mode == 2:
         run = informed_search_manhattan_test(test, goal)
     elif mode == 3:
-        run = informed_search_linear_conflict_test(test, goal)
-    elif mode == 4:
         run = informed_search_misplaced_tile_test(test, goal)
+    elif mode == 4:
+        run = informed_search_linear_conflict_test(test, goal)
     end = time.time()
     print(testname + ": %.8f s" %(end - start))
     node_seen = run[1]

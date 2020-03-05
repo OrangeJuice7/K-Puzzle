@@ -12,7 +12,7 @@ class Puzzle(object):
         self.actions = list()
 
     def solve(self):        
-        self.actions = self.informed_search_misplaced_tile(self.init_state, self.goal_state)
+        self.actions = self.informed_search_linear_conflict(self.init_state, self.goal_state)
         return self.actions
 
     # you may add more functions if you think is useful
@@ -24,7 +24,7 @@ class Puzzle(object):
     sequence of moves to solve the puzzle. It will return unsolvable.
     '''
 
-    def informed_search_misplaced_tile(self, initial, goal):
+    def informed_search_linear_conflict(self, initial, goal):
         moves = self._initialize_list()
         visited_states = {}
         initial = tuple(map(tuple, initial))
@@ -37,7 +37,7 @@ class Puzzle(object):
             
         return moves
 
-    def informed_search_misplaced_tile_test(self, initial, goal):
+    def informed_search_linear_conflict_test(self, initial, goal):
         moves = self._initialize_list()
         visited_states = {}
         initial = tuple(map(tuple, initial))
@@ -75,6 +75,7 @@ class Puzzle(object):
         pq = []
         heappush(pq, source)
         node_seen = 0
+
         while (len(pq) != 0):
             pq_node = heappop(pq)
             state = pq_node[1]
@@ -165,7 +166,7 @@ class Puzzle(object):
             return inv_count % 2 == 1
 
     def _heuristic_sum(self, current_state):
-        return self.calculate_misplaced_distance(current_state)
+        return self.calculate_linear_conflict_column(current_state) + self.calculate_linear_conflict_row(current_state)
 
     '''
     _mark_unsolvable is an internal method to mark that the puzzle is not
@@ -301,20 +302,39 @@ class Puzzle(object):
             new_node = (length + heuristic_value, left, length + 1, new_moves)
             heappush(pq, new_node)
 
-    def calculate_misplaced_distance(self, initial):
+    def calculate_linear_conflict_column(self, initial):
         n = len(initial)
         total = 0
+
         for i in range(n):
             for j in range(n):
-                number = initial[i][j]
-                if (number - 1) // n != i or (number - 1) % n != j:
-                    total += 1;
+                for k in range(i+1,n):
+                    number1 = initial[i][j]
+                    number2 = initial[k][j]
+                    if (number1 - 1) // n == k and (number1 - 1) % n == j and \
+                    (number2 - 1) // n == i and (number2 - 1) % n == j:
+                        total += 2
+
         return total
 
-def informed_search_misplaced_tile_test(initial, goal):
-    puzzle = Puzzle(initial, goal)
-    return puzzle.informed_search_misplaced_tile_test(initial, goal)
+    def calculate_linear_conflict_row(self, initial):
+        n = len(initial)
+        total = 0
 
+        for i in range(n):
+            for j in range(n):
+                for k in range(j+1,n):
+                    number1 = initial[i][j]
+                    number2 = initial[i][k]
+                    if (number1 - 1) // n == i and (number1 - 1) % n == k and \
+                    (number2 - 1) // n == i and (number2 - 1) % n == j:
+                        total += 2
+
+        return total
+
+def informed_search_linear_conflict_test(initial, goal):
+    puzzle = Puzzle(initial, goal)
+    return puzzle.informed_search_linear_conflict_test(initial, goal)
 
 if __name__ == "__main__":
     # do NOT modify below
@@ -365,3 +385,10 @@ if __name__ == "__main__":
     with open(sys.argv[2], 'a') as f:
         for answer in ans:
             f.write(answer+'\n')
+
+
+
+
+
+
+
