@@ -15,11 +15,7 @@ def informed_search(initial, goal):
 	initial = tuple(map(tuple, initial))
 	if _is_solvable(initial):
 		MDH_sum_beginning = calculate_manhattan_beginning(initial)
-		# path = _run_astar(initial_state, goal, visited_states)
 		path = _run_astar(initial, goal, visited_states, moves)
-		# path = _remove_sort_key(path)
-		# path = _remove_start_node(path)
-		# _add_moves(moves, path)
 		return path[3]
 		
 	else:
@@ -54,12 +50,7 @@ def _run_astar(initial, goal, visited_states, moves):
 
 	while (len(pq) != 0):
 		pq_node = heappop(pq)
-		# state = _get_most_recent_state(pq_node[1])
 		state = pq_node[1]
-		# print("ini state")
-		# print(state)
-		# if _is_reached(state.grid, goal):
-		# 	return pq_node
 
 		if _is_reached(state, goal):
 			return pq_node
@@ -78,11 +69,6 @@ def _run_astar(initial, goal, visited_states, moves):
 		if _is_moved_left(y, state):
 			_move_left(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
 
-		# mark the current state as visited
-		# visit = tuple(map(tuple, state.grid))
-		# visit = tuple(map(tuple, state))
-		# print("ini visit")
-		# print(visit)
 		visited_states[state] = 1
 
 '''
@@ -123,25 +109,7 @@ def _heuristic_sum(previous_state, current_state, direction, x, y):
 		- distance(real_x_coordinate_of_number, real_y_coordinate_of_number, x, y+1) \
 		+ distance(real_x_coordinate_of_number, real_y_coordinate_of_number, x, y)
 
-
-	# # the total distance between every misplaced tile and its expected position
-	
-	# Fill in as desired!
-
 def _heuristic_sum_old(current_state):
-	# n = current_state.get_grid_size()
-	# total = 0
-
-	# for i in range(0, n):
-	# 	for j in range(0, n):
-	# 		num = current_state.grid[i][j]
-	# 		if num == 0:
-	# 			continue
-	# 		# offset = current pos - expected pos
-	# 		disx = abs(i - (num - 1) // n)
-	# 		disy = abs(j - (num - 1) % n)
-	# 		total = total + disx + disy
-
 	n = len(current_state)
 	total = 0
 
@@ -150,14 +118,13 @@ def _heuristic_sum_old(current_state):
 			num = current_state[i][j]
 			if num == 0:
 				continue
-			# offset = current pos - expected pos
+
 			disx = abs(i - (num - 1) // n)
 			disy = abs(j - (num - 1) % n)
 			total = total + disx + disy
 	return total
 
 def _swap(state, nx, ny, ox, oy):
-	# transform = list(map(list, state.grid))
 	transform = list(map(list, state))
 	temp = transform[ox][oy]
 	transform[ox][oy] = transform[nx][ny]
@@ -168,14 +135,6 @@ def _swap(state, nx, ny, ox, oy):
 
 
 def _locate_blank(state):
-	# find the coordinates of the blank cell (0)
-	# in the puzzle grid
-
-	# for i in range(0, state.get_grid_size()):
-	# 	for j in range(0, state.get_grid_size()):
-	# 		if state.grid[i][j] == 0:
-	# 			return i, j
-
 	for i in range(0, len(state)):
 		for j in range(0, len(state[0])):
 			if state[i][j] == 0:
@@ -185,9 +144,6 @@ def _locate_blank(state):
 
 
 def _is_reached(state, goal):
-	# check whether the current state is equal
-	# to the goal state
-	# state = list(map(list, state))
 	for i in range(0, len(state)):
 		for j in range(0, len(state[0])):
 			if (state[i][j] != goal[i][j]): 
@@ -296,7 +252,6 @@ _is_moved_down checks whether there exists a tile that can be moved down.
 '''
 
 def _is_moved_down(x, state):
-	# return 0 <= (x-1) < state.get_grid_size()
 	return 0 <= (x-1) < len(state)
 
 '''
@@ -304,7 +259,6 @@ _is_moved_up checks whether there exists a tile that can be moved up.
 '''
 
 def _is_moved_up(x, state):
-	# return (x+1) < state.get_grid_size()
 	return 0 <= (x+1) < len(state)
 
 '''
@@ -312,14 +266,12 @@ _is_moved_left checks whether there exists a tile that can be moved left.
 '''
 
 def _is_moved_left(y, state):
-	# return (y+1) < state.get_grid_size()
 	return (y+1) < len(state[0])
 '''
 _is_moved_right checks whether there exists a tile that can be moved right.
 '''
 
 def _is_moved_right(y, state):
-	# return 0 <= (y-1) < state.get_grid_size()
 	return 0 <= (y-1) < len(state[0])
 
 '''
@@ -331,22 +283,10 @@ def distance(x1, y1, x2, y2):
 
 def _move_down(state, x, y, visited_states, pq, pq_node, length, moves):
 	down = _swap(state, x-1, y, x, y)
-	# if down.grid not in visited_states:
-	# 	current_path = pq_node[1]
-	# 	# _heuristic_sum(state, down, "down", x,y)
-	# 	heuristic_value = _heuristic_sum_old(down)
-	# 	down.manhattan_distance_heuristic = heuristic_value
-	# 	current_path = current_path.add_move(Move(down, "DOWN"))
-	# 	# print("kontol bawah")
-	# 	# print(down.grid)
-	# 	new_node = (current_path.get_path_length() + down.manhattan_distance_heuristic, current_path)
-	# 	heappush(pq, new_node)
+
 	if down not in visited_states:
 		current_path = pq_node[1]
-		# _heuristic_sum(state, down, "down", x,y)
 		heuristic_value = _heuristic_sum_old(down)
-		# print("kontol bawah")
-		# print(down.grid)
 		new_moves = list(moves)
 		new_moves.append("DOWN")
 		new_node = (length + heuristic_value, down, length + 1, new_moves)
@@ -358,23 +298,10 @@ _move_up moves the tile up to the blank tile.
 
 def _move_up(state, x, y, visited_states, pq, pq_node, length, moves):
 	up = _swap(state, x+1, y, x, y)
-	# if up.grid not in visited_states:
-	# 	current_path = pq_node[1]
-	# 	# _heuristic_sum(state, up, "up", x, y)
-	# 	heuristic_value = _heuristic_sum_old(up)
-	# 	up.manhattan_distance_heuristic = heuristic_value
-	# 	current_path = current_path.add_move(Move(up, "UP"))
-	# 	# print("kontol atas")
-	# 	# print(up.grid)
-	# 	new_node = (current_path.get_path_length() + up.manhattan_distance_heuristic, current_path)
-	# 	heappush(pq, new_node)
 
 	if up not in visited_states:
 		current_path = pq_node[1]
-		# _heuristic_sum(state, down, "down", x,y)
 		heuristic_value = _heuristic_sum_old(up)
-		# print("kontol bawah")
-		# print(down.grid)
 		new_moves = list(moves)
 		new_moves.append("UP")
 		new_node = (length + heuristic_value, up, length + 1, new_moves)
@@ -387,23 +314,10 @@ _move_right moves the tile right to the blank tile.
 
 def _move_right(state, x, y, visited_states, pq, pq_node, length, moves):
 	right = _swap(state, x, y-1, x, y)
-	# if right.grid not in visited_states:
-	# 	current_path = pq_node[1]
-	# 	# _heuristic_sum(state, right, "right", x, y)
-	# 	heuristic_value = _heuristic_sum_old(right)
-	# 	right.manhattan_distance_heuristic = heuristic_value
-	# 	current_path = current_path.add_move(Move(right, "RIGHT"))
-	# 	# print("kontol kanan")
-	# 	# print(right.grid)
-	# 	new_node = (current_path.get_path_length() + right.manhattan_distance_heuristic, current_path)
-	# 	heappush(pq, new_node)
 
 	if right not in visited_states:
 		current_path = pq_node[1]
-		# _heuristic_sum(state, down, "down", x,y)
 		heuristic_value = _heuristic_sum_old(right)
-		# print("kontol bawah")
-		# print(down.grid)
 		new_moves = list(moves)
 		new_moves.append("RIGHT")
 		new_node = (length + heuristic_value, right, length + 1, new_moves)
@@ -416,23 +330,11 @@ _move_left moves the tile left to the blank tile.
 
 def _move_left(state, x, y, visited_states, pq, pq_node, length, moves):
 	left = _swap(state, x, y+1, x, y)
-	# if left.grid not in visited_states:
-	# 	current_path = pq_node[1]
-	# 	# _heuristic_sum(state, left, "left", x, y)
-	# 	heuristic_value = _heuristic_sum_old(left)
-	# 	left.manhattan_distance_heuristic = heuristic_value
-	# 	current_path = current_path.add_move(Move(left, "LEFT"))
-	# 	# print("kontol kiri")
-	# 	# print(left.grid)
-	# 	new_node = (current_path.get_path_length() + left.manhattan_distance_heuristic, current_path)
-	# 	heappush(pq, new_node)
 
 	if left not in visited_states:
 		current_path = pq_node[1]
-		# _heuristic_sum(state, down, "down", x,y)
 		heuristic_value = _heuristic_sum_old(left)
-		# print("kontol bawah")
-		# print(down.grid)
+
 		new_moves = list(moves)
 		new_moves.append("LEFT")
 		new_node = (length + heuristic_value, left, length + 1, new_moves)
