@@ -158,8 +158,9 @@ def performance():
 				depths[algo_index][path_length] = [1, time_taken, nodes_seen]
 		
 		if path_length >= 0:
+			if test_index%10 == 0:
+				print("Test " + str(test_index) + " done. Depth: " + str(path_length))
 			tests_left -= 1
-			print("Test " + str(test_index) + " done. Depth: " + str(path_length))
 	
 	# print results
 	print("Tests done!")
@@ -174,7 +175,7 @@ def performance():
 			avg_nodes_seen = depths[algo_index][depth][2] / total_num_of_tests
 			
 			print("    Total num of tests: " + str(total_num_of_tests))
-			print("    Average time: " + str(avg_time_taken))
+			print("    Average time: " + str(avg_time_taken) + " ms")
 			print("    Average nodes seen: " + str(avg_nodes_seen))
 
 
@@ -196,8 +197,8 @@ def timer(test, goal, testname, mode):
 		run = uninformed_search_test(test, goal)
 	
 	end = time.time()
-	time_taken = end - start
-	#print(testname + ": %.8f s" %time_taken)
+	time_taken = (end - start)*1000 # in ms
+	#print(testname + ": %.8f ms" %time_taken)
 	
 	nodes_seen = run[1]
 	path = run[0]
