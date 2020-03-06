@@ -139,6 +139,8 @@ In all cases, $|d_{h_3}(v,v')|\leq 1 \implies h_3(v) \leq 1+h_3(v') = d(v,v')+h_
 
 %The calculation of this heuristic may be reduced to a table lookup, by pre-computing the number of linear conflicts given a row.
 
+Trivially, $h_3$ dominates $h_1$.
+
 
 
 \section{Experimental Setup}
@@ -146,24 +148,28 @@ In all cases, $|d_{h_3}(v,v')|\leq 1 \implies h_3(v) \leq 1+h_3(v') = d(v,v')+h_
 The performances of BFS and A*-search with each of the three heuristics have been experimentally measured, and consolidated in Table \ref{tab:aresults} and plotted in Figure \ref{fig:results}.
 % There's a bug where \ref{tab:results} would wrongly give 2 instead of 1. :/
 
-Inputs are drawn with a uniform random distribution from the set of $n \times n$ solvable initial states. The optimal depth $d$ is measured using BFS, and the initial state is categorized accordingly. 2000 initial states for each listed depth are tested.
+Inputs are randomly generated from the set of $n \times n$ initial states. Unsolvable states are discarded. The optimal depth $d$ is measured and the initial state is categorized accordingly.
 The metrics used are the absolute time taken to obtain an output, and the number of nodes seen. These metrics directly reflect the time and memory requirements of each algorithm respectively.
 
-The algorithms were coded in Python 2.6 and the experiments were run on a [OS] machine with a [processor] and 16 GB of RAM. Absolute time was measured with Python's \texttt{time} package.
+The algorithms were coded in Python 2.6.4 and the experiments were run on NUS's \texttt{sunfire} server. Absolute time was measured with Python's \texttt{time} package.
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=\textwidth]{results_time.png}
-	%\includegraphics[width=\textwidth]{results_space.png}
-	\caption{Plot of the performance results of the proposed algorithms.} \label{fig:results}
+	\includegraphics[width=\textwidth]{results_space.png}
+	\caption{Plot of the performance results of the proposed algorithms. The x-axis is the depth of the optimal solution. A logarithmic scale (base 3) is used for the y-axes so that the results are more visible.} \label{fig:results}
 \end{figure}
 
 
 
 \section{Results and Discussion}
-The average time and space complexities for all algorithms are $O(1.667^d)$ for 3x3, $O(2^d)$ for 4x4, and $O(2.2^d)$ for 5x5. (See see \ref{subsec:branchingfactors} for the average branching factor.) The empirical results in Figure \ref{fig:results} supports this analysis.
+%The average time and space complexities for all algorithms are $O(1.667^d)$ for 3x3, $O(2^d)$ for 4x4, and $O(2.2^d)$ for 5x5. (See see \ref{subsec:branchingfactors} for the average branching factor.)
+The time and space complexities for all algorithms are all $O(3^d)$.
+The empirical results in Figure \ref{fig:results} supports this analysis, although some are even more efficient.
 
-Figure \ref{fig:results} also shows that the algorithms in order of most to least time-efficient is A* with $h_3$, A* with $h_1$, A* with $h_2$, then finally BFS. This agrees with our theoretical analysis regarding the dominance of one heuristic over another (where BFS may be regarded as A* with a heuristic that returns 0 everywhere).
+Figure \ref{fig:results} also shows that the algorithms in order of most to least time-efficient is A* with $h_3$ $\approx$ A* with $h_1$ $>$ A* with $h_2$ $>$ BFS. This agrees with our theoretical analysis regarding the dominance of one heuristic over another (where BFS may be regarded as A* with a heuristic that returns 0 everywhere).
+
+Even though $h_3$ dominates $h_1$, A* with $h_3$ takes more time to execute than A* with $h_1$. This is because it is more expensive to calculate $h_3$ than $h_1$. However, $h_3$ always explores less nodes than $h_1$, and past a certain point (perhaps around $d \approx 25$), $h_3$ starts to become more time-efficient than $h_1$ as well.
 
 % Announcement: ``Your report should at least be 2 pages long, and no longer than 4 pages''
 
@@ -172,81 +178,70 @@ Figure \ref{fig:results} also shows that the algorithms in order of most to leas
 % If there was a more lax report length requirement, it could be neater to split this into a time table and #nodes table
 \begin{table}[p]
 \centering
-\caption{Performance results of the proposed algorithms.}
+\caption{Performance results of the proposed algorithms. B stands for BFS, while $h_i$ stands for A* with the $h_i$ heuristic.}
 \label{tab:aresults}
-\begin{tabular}{|c|
-		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
-		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
-		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
-		>{\centering}p{0.105\textwidth}|>{\centering\arraybackslash}p{0.095\textwidth}|} % compile error without \arraybackslash for some reason
+\begin{tabular}{|c|c||
+		>{\centering}p{.08\textwidth}|>{\centering}p{.08\textwidth}|>{\centering}p{.08\textwidth}|>{\centering}p{.08\textwidth}||
+		>{\centering}p{.08\textwidth}|>{\centering}p{.08\textwidth}|>{\centering}p{.08\textwidth}|>{\centering\arraybackslash}p{.08\textwidth}|} % compile error without \arraybackslash for some reason
 \hline
-      3x3
-      & \multicolumn{2}{c|}{BFS} & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
+      \multicolumn{2}{|c||}{3x3}
+      & \multicolumn{4}{c||}{Avg time taken (ms)} & \multicolumn{4}{c|}{Avg \#nodes seen} \\
 \hline
-Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
+Depth $d$ & \#Trials & B & $h_1$ & $h_2$ & $h_3$ & B & $h_1$ & $h_2$ & $h_3$ \\
 \hline
- 2  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 4  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 6  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 8  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-10  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-12  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-14  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-16  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-18  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-20  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-22  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-24  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 2  & 1115 & .441 & .225 & .209 & .571 &     17 &   6 &    6 &   6 \\
+ 4  & 1738 & 1.02 & .351 & .329 & .889 &     42 &   9 &   10 &   9 \\
+ 6  & 2280 & 3.57 & .506 & .591 & 1.27 &    150 &  14 &   17 &  14 \\
+ 8  & 2112 & 9.15 & .686 & .941 & 1.68 &    382 &  19 &   27 &  19 \\
+10  & 1321 & 28.6 & .969 & 2.05 & 2.23 &   1136 &  26 &   58 &  25 \\
+12  &  743 & 74.5 & 1.50 & 4.37 & 3.09 &   2881 &  40 &  122 &  35 \\
+14  &  312 &  212 & 2.64 & 11.0 & 4.73 &   7944 &  68 &  298 &  54 \\
+16  &  126 &  534 & 4.05 & 24.7 & 6.45 &  19076 & 103 &  650 &  74 \\
+18  &   34 & 1623 & 9.09 & 69.2 & 12.8 &  51102 & 224 & 1750 & 148 \\
+20  &    9 & 3933 & 18.8 &  155 & 23.0 & 104154 & 452 & 3850 & 264 \\
 \hline
 \end{tabular}
-\begin{tabular}{|c|
-		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
-		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
-		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
-		>{\centering}p{0.105\textwidth}|>{\centering\arraybackslash}p{0.095\textwidth}|}
+\begin{tabular}{|c|c||
+		>{\centering}p{.08\textwidth}|>{\centering}p{.08\textwidth}|>{\centering}p{.08\textwidth}||
+		>{\centering}p{.08\textwidth}|>{\centering}p{.08\textwidth}|>{\centering\arraybackslash}p{.08\textwidth}|}
 \hline
-      4x4
-      & \multicolumn{2}{c|}{BFS} & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
+      \multicolumn{2}{|c||}{4x4}
+      & \multicolumn{3}{c||}{Avg time taken (ms)} & \multicolumn{3}{c|}{Avg \#nodes seen} \\
 \hline
-Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
+Depth $d$ & \#Trials & $h_1$ & $h_2$ & $h_3$ & $h_1$ & $h_2$ & $h_3$ \\
 \hline
- 2  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 4  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 6  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 8  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-10  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-12  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-14  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-16  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-18  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-20  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-22  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-24  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 2  &  528 & .328 & .297 & .909 &   6 &    6 &   6 \\
+ 4  & 1337 & .549 & .493 & 1.62 &  11 &   11 &  11 \\
+ 6  & 1831 & .753 & .752 & 2.25 &  16 &   18 &  16 \\
+ 8  & 1989 & 1.01 & 1.27 & 3.04 &  22 &   31 &  21 \\
+10  & 1786 & 1.38 & 2.26 & 4.08 &  30 &   55 &  29 \\
+12  & 1266 & 1.94 & 4.79 & 5.46 &  42 &  117 &  39 \\
+14  &  720 & 2.85 & 11.2 & 7.49 &  61 &  269 &  54 \\
+16  &  284 & 4.69 & 30.3 & 11.0 &  99 &  712 &  80 \\
+18  &  107 & 7.25 & 76.3 & 15.1 & 152 & 1744 & 111 \\
+20  &   27 & 10.1 &  182 & 19.2 & 210 & 4087 & 143 \\
 \hline
 \end{tabular}
-\begin{tabular}{|c|
-		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
-		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
-		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
-		>{\centering}p{0.105\textwidth}|>{\centering\arraybackslash}p{0.095\textwidth}|}
+\begin{tabular}{|c|c||
+		>{\centering}p{.08\textwidth}|>{\centering}p{.08\textwidth}|>{\centering}p{.08\textwidth}||
+		>{\centering}p{.08\textwidth}|>{\centering}p{.08\textwidth}|>{\centering\arraybackslash}p{.08\textwidth}|}
 \hline
-      5x5
-      & \multicolumn{2}{c|}{BFS} & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
+      \multicolumn{2}{|c||}{5x5}
+      & \multicolumn{3}{c||}{Avg time taken (ms)} & \multicolumn{3}{c|}{Avg \#nodes seen} \\
 \hline
-Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
+Depth $d$ & \#Trials & $h_1$ & $h_2$ & $h_3$ & $h_1$ & $h_2$ & $h_3$ \\
 \hline
- 2  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 4  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 6  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 8  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-10  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-12  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-14  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-16  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-18  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-20  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-22  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-24  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 2  &  478 & .478 & .425 & 1.35 &   6 &     6 &   6 \\
+ 4  & 1039 & .768 & .675 & 2.39 &  11 &    11 &  11 \\
+ 6  & 1578 & 1.06 & 1.01 & 3.44 &  17 &    19 &  17 \\
+ 8  & 1925 & 1.39 & 1.59 & 4.60 &  22 &    30 &  22 \\
+10  & 1891 & 1.86 & 2.82 & 6.10 &  30 &    56 &  30 \\
+12  & 1396 & 2.44 & 5.23 & 7.88 &  40 &   105 &  39 \\
+14  &  872 & 3.51 & 11.4 & 10.7 &  59 &   229 &  53 \\
+16  &  469 & 5.17 & 27.6 & 15.0 &  87 &   543 &  75 \\
+18  &  178 & 9.04 & 83.9 & 22.7 & 151 &  1698 & 114 \\
+20  &   64 & 14.5 &  228 & 33.8 & 238 &  4237 & 170 \\
+22  &   16 & 27.7 &  672 & 54.0 & 450 & 12083 & 273 \\
 \hline
 \end{tabular}
 \end{table}
