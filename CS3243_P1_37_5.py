@@ -5,6 +5,7 @@ from CS3243_P1_37_4 import informed_search_linear_conflict_test
 import time
 import random
 import math
+from copy import deepcopy
  
 def flatten(mat):
     tmp = []
@@ -22,20 +23,95 @@ def pack(mat):
             tmp.append(mat[i*size + j])
         result.append(tmp)
     return result
- 
+
 def create_test(n):
-    if n == 3:
-        goal = [[1,2,3], [4,5,6], [7,8,0]]
-    elif n == 4:
-        goal = [[1,2,3,4], [5,6,7,8], [9,10,11,12], [13,14,15,0]]
-    elif n == 5:
-        goal = [[1,2,3,4,5], [6,7,8,9,10], [11,12,13,14,15], [16,17,18,19,20], [21,22,23,24,0]]
- 
-    initial = goal
-    initial = flatten(initial)
-    random.shuffle(initial)
-    initial = pack(initial)
-    return goal, initial
+	num_of_tiles = n*n
+	#random.seed(time.time())
+	
+	if n == 3:
+		goal = [[1,2,3], [4,5,6], [7,8,0]]
+	elif n == 4:
+		goal = [[1,2,3,4], [5,6,7,8], [9,10,11,12], [13,14,15,0]]
+	elif n == 5:
+		goal = [[1,2,3,4,5], [6,7,8,9,10], [11,12,13,14,15], [16,17,18,19,20], [21,22,23,24,0]]
+	
+	"""
+	# Some mechanics to reduce the depth of the solution:
+	# choose a random number of tiles to fix in their goal positions
+	fixed_tiles = set()
+	to_shuffle = []
+	for i in range(num_of_tiles):
+		if random.random() < .3: # fix about 30% of tiles
+			fixed_tiles.add(i)
+		else:
+			to_shuffle.append(i)
+	
+	random.shuffle(to_shuffle)
+	
+	initial = []
+	for i in range(num_of_tiles):
+		j = (i+1)%num_of_tiles
+		if j in fixed_tiles:
+			initial.append(j)
+		else:
+			initial.append(to_shuffle.pop(0))
+	
+	# check number of inversions
+	num_of_inversions = 0
+	for i in range(num_of_tiles):
+		if initial[i] == 0:
+			continue
+		for j in range(i):
+			if initial[j] == 0:
+				continue
+			
+			if initial[j] > initial[i]:
+				num_of_inversions += 1
+	
+	print("Created test: " + str(initial) + ". Inversions: " + str(num_of_inversions))
+	"""
+	
+	initial = deepcopy(goal)
+	
+	num_of_actions = 30 # guarantee to generate an initial state of depth at most this
+	last_action = -1
+	# coords of the empty tile
+	x = n-1
+	y = n-1
+	for i in range(num_of_actions):
+		while True:
+			action = random.randint(0, 3)
+			
+			if action == last_action:
+				continue
+			
+			if action == 0 and x > 0: # x-
+				initial[x][y], initial[x-1][y] = initial[x-1][y], initial[x][y]
+				x -= 1
+				last_action = action
+				break
+			elif action == 1 and x < n-1: # x+
+				initial[x][y], initial[x+1][y] = initial[x+1][y], initial[x][y]
+				x += 1
+				last_action = action
+				break
+			elif action == 2 and y > 0: # y-
+				initial[x][y], initial[x][y-1] = initial[x][y-1], initial[x][y]
+				y -= 1
+				last_action = action
+				break
+			elif action == 3 and y < n-1: # y+
+				initial[x][y], initial[x][y+1] = initial[x][y+1], initial[x][y]
+				y += 1
+				last_action = action
+				break
+
+	#print("Created test: " + str(initial))
+	
+	#initial = [i for i in range(num_of_tiles)]
+	#random.shuffle(initial)
+	#initial = pack(initial)
+	return goal, initial
 
 
 def performance():
@@ -60,11 +136,16 @@ def performance():
 	
 	print("Running " + str(tests_left) + " tests...")
 	while tests_left > 0:
+		test_index = num_of_tests - tests_left + 1
 		goal, initial = create_test(grid_size)
 		path_length = -1
 		
 		for algo_index in range(4):
-			time_taken, nodes_seen, path_length = timer(initial, goal, test_names[algo_index] + " " + str(tests_left), algo_index)
+			# Do NOT ask BFS to solve initial states with depth past a certain point or for anything more than 3x3 puzzles, the time and space needed is unfeasible
+			if algo_index == 3 and (grid_size > 3 or path_length > 20):
+				continue
+			
+			time_taken, nodes_seen, path_length = timer(initial, goal, test_names[algo_index] + " " + str(test_index), algo_index)
 			
 			if path_length < 0: # got an unsolvable problem
 				break # break out of for loop
@@ -78,7 +159,7 @@ def performance():
 		
 		if path_length >= 0:
 			tests_left -= 1
-			print("Depth: " + str(path_length) + "    Tests left: " + str(tests_left))
+			print("Test " + str(test_index) + " done. Depth: " + str(path_length))
 	
 	# print results
 	print("Tests done!")
@@ -98,6 +179,8 @@ def performance():
 
 
 def timer(test, goal, testname, mode):
+	#print("Running: " + testname)
+	
 	# record elapsed time
 	start = time.time()
 	

@@ -146,10 +146,10 @@ In all cases, $|d_{h_3}(v,v')|\leq 1 \implies h_3(v) \leq 1+h_3(v') = d(v,v')+h_
 The performances of BFS and A*-search with each of the three heuristics have been experimentally measured, and consolidated in Table \ref{tab:aresults} and plotted in Figure \ref{fig:results}.
 % There's a bug where \ref{tab:results} would wrongly give 2 instead of 1. :/
 
-Inputs are drawn with a uniform random distribution from the set of $n \times n$ solvable initial states. The optimal depth $d$ is measured using BFS, and the initial state is categorized accordingly. 2000 initial states for each listed depth are tested.
+Inputs are randomly generated from the set of $n \times n$ initial states. Unsolvable states are discarded. The optimal depth $d$ is measured and the initial state is categorized accordingly.
 The metrics used are the absolute time taken to obtain an output, and the number of nodes seen. These metrics directly reflect the time and memory requirements of each algorithm respectively.
 
-The algorithms were coded in Python 2.6 and the experiments were run on a [OS] machine with a [processor] and 16 GB of RAM. Absolute time was measured with Python's \texttt{time} package.
+The algorithms were coded in Python 2.6.4 and the experiments were run on NUS's \texttt{sunfire} server. Absolute time was measured with Python's \texttt{time} package.
 
 \begin{figure}[h!]
 	\centering
@@ -202,51 +202,49 @@ Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time
 \begin{tabular}{|c|
 		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
 		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
-		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
 		>{\centering}p{0.105\textwidth}|>{\centering\arraybackslash}p{0.095\textwidth}|}
 \hline
       4x4
-      & \multicolumn{2}{c|}{BFS} & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
+      & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
 \hline
-Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
+Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
 \hline
- 2  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 4  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 6  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 8  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-10  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-12  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-14  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-16  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-18  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-20  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-22  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-24  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 2  & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 4  & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 6  & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 8  & 1 & 1 & 1 & 1 & 1 & 1 \\
+10  & 1 & 1 & 1 & 1 & 1 & 1 \\
+12  & 1 & 1 & 1 & 1 & 1 & 1 \\
+14  & 1 & 1 & 1 & 1 & 1 & 1 \\
+16  & 1 & 1 & 1 & 1 & 1 & 1 \\
+18  & 1 & 1 & 1 & 1 & 1 & 1 \\
+20  & 1 & 1 & 1 & 1 & 1 & 1 \\
+22  & 1 & 1 & 1 & 1 & 1 & 1 \\
+24  & 1 & 1 & 1 & 1 & 1 & 1 \\
 \hline
 \end{tabular}
 \begin{tabular}{|c|
 		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
 		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
-		>{\centering}p{0.105\textwidth}|>{\centering}p{0.095\textwidth}|
 		>{\centering}p{0.105\textwidth}|>{\centering\arraybackslash}p{0.095\textwidth}|}
 \hline
       5x5
-      & \multicolumn{2}{c|}{BFS} & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
+      & \multicolumn{2}{c|}{A* with $h_1$} & \multicolumn{2}{c|}{A* with $h_2$} & \multicolumn{2}{c|}{A* with $h_3$} \\
 \hline
-Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
+Depth $d$ & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen & Time taken (s) & \#Nodes seen \\
 \hline
- 2  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 4  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 6  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
- 8  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-10  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-12  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-14  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-16  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-18  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-20  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-22  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
-24  & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 2  & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 4  & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 6  & 1 & 1 & 1 & 1 & 1 & 1 \\
+ 8  & 1 & 1 & 1 & 1 & 1 & 1 \\
+10  & 1 & 1 & 1 & 1 & 1 & 1 \\
+12  & 1 & 1 & 1 & 1 & 1 & 1 \\
+14  & 1 & 1 & 1 & 1 & 1 & 1 \\
+16  & 1 & 1 & 1 & 1 & 1 & 1 \\
+18  & 1 & 1 & 1 & 1 & 1 & 1 \\
+20  & 1 & 1 & 1 & 1 & 1 & 1 \\
+22  & 1 & 1 & 1 & 1 & 1 & 1 \\
+24  & 1 & 1 & 1 & 1 & 1 & 1 \\
 \hline
 \end{tabular}
 \end{table}
