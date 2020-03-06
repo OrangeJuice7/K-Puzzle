@@ -100,6 +100,9 @@ def performance():
 def timer(test, goal, testname, mode):
 	# record elapsed time
 	start = time.time()
+	
+	# This is NOT in the order of the source code files
+	# Instead it is ordered from fastest first
 	if mode == 0:
 		run = informed_search_linear_conflict_test(test, goal)
 	elif mode == 1:
@@ -108,6 +111,7 @@ def timer(test, goal, testname, mode):
 		run = informed_search_misplaced_tile_test(test, goal)
 	elif mode == 3:
 		run = uninformed_search_test(test, goal)
+	
 	end = time.time()
 	time_taken = end - start
 	#print(testname + ": %.8f s" %time_taken)

@@ -5,332 +5,402 @@ from heapq import heappop
 
 
 class Puzzle(object):
-    def __init__(self, init_state, goal_state):
-        # you may add more attributes if you think is useful
-        self.init_state = init_state
-        self.goal_state = goal_state
-        self.actions = list()
+	def __init__(self, init_state, goal_state):
+		# you may add more attributes if you think is useful
+		self.init_state = init_state
+		self.goal_state = goal_state
+		self.actions = list()
 
-    def solve(self):        
-        self.actions = self.informed_search_linear_conflict(self.init_state, self.goal_state)
-        return self.actions
+	def solve(self):        
+		self.actions = self.informed_search_linear_conflict(self.init_state, self.goal_state)
+		return self.actions
 
     # you may add more functions if you think is useful
-    '''
+	'''
     informed_search is a method that defines the general procedure
     of doing an informed search from the state to the goal. The function
     takes in an initial state, as well as the goal state. A state is represented
     as a 2D array. The function returns the
     sequence of moves to solve the puzzle. It will return unsolvable.
-    '''
+	'''
 
-    def informed_search_linear_conflict(self, initial, goal):
-        moves = self._initialize_list()
-        visited_states = {}
-        initial = tuple(map(tuple, initial))
-        if self._is_solvable(initial):
-            path = self._run_astar(initial, goal, visited_states, moves)
-            return path[3]
-            
-        else:
-            self._mark_unsolvable(moves)
-            
-        return moves
+	def informed_search_linear_conflict(self, initial, goal):
+		moves = self._initialize_list()
+		visited_states = {}
+		initial = tuple(map(tuple, initial))
+		if self._is_solvable(initial):
+			path = self._run_astar(initial, goal, visited_states, moves)
+			return path[3]
 
-    def informed_search_linear_conflict_test(self, initial, goal):
-        moves = self._initialize_list()
-        visited_states = {}
-        initial = tuple(map(tuple, initial))
-        if self._is_solvable(initial):
-            path = self._run_astar(initial, goal, visited_states, moves)
-            return [path[3], path[4]]
-            
-        else:
-            self._mark_unsolvable(moves)
-            
-        return [moves, 1]
+		else:
+			self._mark_unsolvable(moves)
 
-    '''
-    _run_astar is the internal method to run the A* search. It takes in the initial
-    state, the goal state, as well as the set of visited states.
+		return moves
 
-    We maintain a priority queue that sort the path based on 
-    heuristics. And explore the next state with lowest expected cost.
+	def informed_search_linear_conflict_test(self, initial, goal):
+		moves = self._initialize_list()
+		visited_states = {}
+		initial = tuple(map(tuple, initial))
+		if self._is_solvable(initial):
+			path = self._run_astar(initial, goal, visited_states, moves)
+			return [path[3], path[4]]
 
-    Each entry of the priority queue is a tuple (heuristic_sort_key, path)
-    Each path is a list of tuples (next 2D state, the move to achieve next state)
+		else:
+			self._mark_unsolvable(moves)
 
-    By default, Python priority queue sort the tuple based on the first 
-    element of that tuple.
+		return [moves, 1]
 
-    Evaluation function 
-        = current length of the path + Manhattan distance of each tile from its proper position
+	'''
+	_run_astar is the internal method to run the A* search. It takes in the initial
+	state, the goal state, as well as the set of visited states.
 
-    When the goal state is reached, we return the path from source to goal.
+	We maintain a priority queue that sort the path based on 
+	heuristics. And explore the next state with lowest expected cost.
 
-    '''
+	Each entry of the priority queue is a tuple (heuristic_sort_key, path)
+	Each path is a list of tuples (next 2D state, the move to achieve next state)
 
-    def _run_astar(self, initial, goal, visited_states, moves):
-        source = (0, initial, 0, moves)
-        pq = []
-        heappush(pq, source)
-        node_seen = 0
+	By default, Python priority queue sort the tuple based on the first 
+	element of that tuple.
 
-        while (len(pq) != 0):
-            pq_node = heappop(pq)
-            state = pq_node[1]
-            node_seen += 1
-            if self._is_reached(state, goal):
-                node_seen += len(pq)
-                pq_node = list(pq_node)
-                pq_node.append(node_seen)
-                return pq_node
+	Evaluation function 
+		= current length of the path + Manhattan distance of each tile from its proper position
 
-            if state in visited_states:
-                continue
+	When the goal state is reached, we return the path from source to goal.
 
-            x, y = self._locate_blank(state)
+	'''
 
-            if self._is_moved_down(x, state):
-                self._move_down(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
+	def _run_astar(self, initial, goal, visited_states, moves):
+		source = (0, initial, 0, moves)
+		pq = []
+		heappush(pq, source)
+		node_seen = 0
 
-            if self._is_moved_right(y, state):
-                self._move_right(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
+		while (len(pq) != 0):
+			pq_node = heappop(pq)
+			state = pq_node[1]
+			node_seen += 1
+			if self._is_reached(state, goal):
+				node_seen += len(pq)
+				pq_node = list(pq_node)
+				pq_node.append(node_seen)
+				return pq_node
 
-            if self._is_moved_up(x, state):
-                self._move_up(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
+			if state in visited_states:
+				continue
 
-            if self._is_moved_left(y, state):
-                self._move_left(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
+			x, y = self._locate_blank(state)
 
-            visited_states[state] = 1
+			if self._is_moved_down(x, state):
+				self._move_down(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
+
+			if self._is_moved_right(y, state):
+				self._move_right(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
+
+			if self._is_moved_up(x, state):
+				self._move_up(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
+
+			if self._is_moved_left(y, state):
+				self._move_left(state, x, y, visited_states, pq, pq_node, pq_node[2], pq_node[3])
+
+			visited_states[state] = 1
 
 
-    def _swap(self, state, nx, ny, ox, oy):
-        transform = list(map(list, state))
-        temp = transform[ox][oy]
-        transform[ox][oy] = transform[nx][ny]
-        transform[nx][ny] = temp
+	def _swap(self, state, nx, ny, ox, oy):
+		transform = list(map(list, state))
+		temp = transform[ox][oy]
+		transform[ox][oy] = transform[nx][ny]
+		transform[nx][ny] = temp
         
-        res = tuple(map(tuple, transform))
-        return res
+		res = tuple(map(tuple, transform))
+		return res
 
 
-    def _locate_blank(self, state):
-        for i in range(0, len(state)):
-            for j in range(0, len(state[0])):
-                if state[i][j] == 0:
-                    return i, j
+	def _locate_blank(self, state):
+		for i in range(0, len(state)):
+			for j in range(0, len(state[0])):
+				if state[i][j] == 0:
+					return i, j
 
-        raise ValueError("Error: no blank cell exists!")
-
-
-    def _is_reached(self,state, goal):
-        for i in range(0, len(state)):
-            for j in range(0, len(state[0])):
-                if (state[i][j] != goal[i][j]): 
-                    return False
-
-        return True
+		raise ValueError("Error: no blank cell exists!")
 
 
-    def _is_solvable(self, state):
-        # If k is odd, the puzzle is solvable if there are even number
-        # of inversion pairs; otherwise, it is not solvable
+	def _is_reached(self,state, goal):
+		for i in range(0, len(state)):
+			for j in range(0, len(state[0])):
+				if (state[i][j] != goal[i][j]): 
+					return False
 
-        # Else if k is even, the puzzle is solvable if the blank tile is
-        # on the odd row and having an even inversion, or the blank tile is
-        # on the even row and having an odd inversion
-
-        inv_count = 0
-        blank_row = -1
-        # flattent the array from 2D into 1D
-        flat = []
-        for i in range(0, len(state)):
-            for j in range(0, len(state[0])):
-                if (state[i][j]) != 0:
-                    flat.append(state[i][j])
-                else:
-                    blank_row = len(state) - i
-
-        # count inversion pairs
-        for m in range(0, len(flat)):
-            for n in range(m, len(flat)):
-                if (flat[m] and flat[n] and flat[m] > flat[n]):
-                    inv_count += 1
-
-        if (len(state) % 2 == 1 or blank_row % 2 == 1):
-            return inv_count % 2 == 0
-
-        else:
-            return inv_count % 2 == 1
-
-    def _heuristic_sum(self, current_state):
-        return self.calculate_linear_conflict_column(current_state) + self.calculate_linear_conflict_row(current_state)
-
-    '''
-    _mark_unsolvable is an internal method to mark that the puzzle is not
-    unsolvable. It takes in a sequence of moves in form of list, and append
-    the unsolvable mark to the list.
-    '''
-
-    def _mark_unsolvable(self, moves):
-        moves.append("UNSOLVABLE")
-
-    '''
-    _initialize_list is an internal method to abstract the list creation.
-    '''
-
-    def _initialize_list(self):
-        return []
-
-    '''
-    _remove_sort_key is an internal method to remove the sort_key after doing
-    the A* search. It takes in the result of A* search, and returns the path
-    to reach the goal state. The result of A* search is in form of (sort_key, path).
-    '''
-
-    def _remove_sort_key(self, path):
-        return path[1]
-
-    '''
-    _remove_start_node is an internal method to remove the start node.
-    '''
-
-    def _remove_start_node(self, path):
-        return path.remove_first()
-
-    '''
-    _add_moves adds all the moves from the A* search to the original list.
-    Each move is in form (next_state, next_move)
-    '''
-
-    def _add_moves(self, moves, path):
-        for move in path.moves:
-            moves.append(move.direction)
-
-    '''
-    _is_moved_down checks whether there exists a tile that can be moved down.
-    '''
-
-    def _is_moved_down(self, x, state):
-        return 0 <= (x-1) < len(state)
-
-    '''
-    _is_moved_up checks whether there exists a tile that can be moved up.
-    '''
-
-    def _is_moved_up(self, x, state):
-        return 0 <= (x+1) < len(state)
-
-    '''
-    _is_moved_left checks whether there exists a tile that can be moved left.
-    '''
-
-    def _is_moved_left(self, y, state):
-        return (y+1) < len(state[0])
-    '''
-    _is_moved_right checks whether there exists a tile that can be moved right.
-    '''
-
-    def _is_moved_right(self, y, state):
-        return 0 <= (y-1) < len(state[0])
-
-    '''
-    _move_down moves the tile down to the blank tile.
-    '''
-
-    def distance(self, x1, y1, x2, y2):
-        return abs(x1-x2) + abs(y1 - y2)
-
-    def _move_down(self, state, x, y, visited_states, pq, pq_node, length, moves):
-        down = self._swap(state, x-1, y, x, y)
-
-        if down not in visited_states:
-            current_path = pq_node[1]
-            heuristic_value = self._heuristic_sum(down)
-            new_moves = list(moves)
-            new_moves.append("DOWN")
-            new_node = (length + heuristic_value, down, length + 1, new_moves)
-            heappush(pq, new_node)
-
-    '''
-    _move_up moves the tile up to the blank tile.
-    '''
-
-    def _move_up(self, state, x, y, visited_states, pq, pq_node, length, moves):
-        up = self._swap(state, x+1, y, x, y)
-
-        if up not in visited_states:
-            current_path = pq_node[1]
-            heuristic_value = self._heuristic_sum(up)
-            new_moves = list(moves)
-            new_moves.append("UP")
-            new_node = (length + heuristic_value, up, length + 1, new_moves)
-            heappush(pq, new_node)
+		return True
 
 
-    '''
-    _move_right moves the tile right to the blank tile.
-    '''
+	def _is_solvable(self, state):
+		# If k is odd, the puzzle is solvable if there are even number
+		# of inversion pairs; otherwise, it is not solvable
 
-    def _move_right(self, state, x, y, visited_states, pq, pq_node, length, moves):
-        right = self._swap(state, x, y-1, x, y)
+		# Else if k is even, the puzzle is solvable if the blank tile is
+		# on the odd row and having an even inversion, or the blank tile is
+		# on the even row and having an odd inversion
 
-        if right not in visited_states:
-            current_path = pq_node[1]
-            heuristic_value = self._heuristic_sum(right)
-            new_moves = list(moves)
-            new_moves.append("RIGHT")
-            new_node = (length + heuristic_value, right, length + 1, new_moves)
-            heappush(pq, new_node)
+		inv_count = 0
+		blank_row = -1
+		# flattent the array from 2D into 1D
+		flat = []
+		for i in range(0, len(state)):
+			for j in range(0, len(state[0])):
+				if (state[i][j]) != 0:
+					flat.append(state[i][j])
+				else:
+					blank_row = len(state) - i
+
+		# count inversion pairs
+		for m in range(0, len(flat)):
+			for n in range(m, len(flat)):
+				if (flat[m] and flat[n] and flat[m] > flat[n]):
+					inv_count += 1
+
+		if (len(state) % 2 == 1 or blank_row % 2 == 1):
+			return inv_count % 2 == 0
+
+		else:
+			return inv_count % 2 == 1
+
+	def _heuristic_sum(self, current_state):
+		n = len(current_state)
+		manhattan_dist = 0
+
+		for i in range(0, n):
+			for j in range(0, n):
+				num = current_state[i][j]
+				if num == 0:
+					continue
+
+				disx = abs(i - (num - 1) // n)
+				disy = abs(j - (num - 1) % n)
+				manhattan_dist = manhattan_dist + disx + disy
+		
+		return self.calculate_linear_conflict(current_state) + manhattan_dist
+
+	'''
+	_mark_unsolvable is an internal method to mark that the puzzle is not
+	unsolvable. It takes in a sequence of moves in form of list, and append
+	the unsolvable mark to the list.
+	'''
+
+	def _mark_unsolvable(self, moves):
+		moves.append("UNSOLVABLE")
+
+	'''
+	_initialize_list is an internal method to abstract the list creation.
+	'''
+
+	def _initialize_list(self):
+		return []
+
+	'''
+	_remove_sort_key is an internal method to remove the sort_key after doing
+	the A* search. It takes in the result of A* search, and returns the path
+	to reach the goal state. The result of A* search is in form of (sort_key, path).
+	'''
+
+	def _remove_sort_key(self, path):
+		return path[1]
+
+	'''
+	_remove_start_node is an internal method to remove the start node.
+	'''
+
+	def _remove_start_node(self, path):
+		return path.remove_first()
+
+	'''
+	_add_moves adds all the moves from the A* search to the original list.
+	Each move is in form (next_state, next_move)
+	'''
+
+	def _add_moves(self, moves, path):
+		for move in path.moves:
+			moves.append(move.direction)
+
+	'''
+	_is_moved_down checks whether there exists a tile that can be moved down.
+	'''
+
+	def _is_moved_down(self, x, state):
+		return 0 <= (x-1) < len(state)
+
+	'''
+	_is_moved_up checks whether there exists a tile that can be moved up.
+	'''
+
+	def _is_moved_up(self, x, state):
+		return 0 <= (x+1) < len(state)
+
+	'''
+	_is_moved_left checks whether there exists a tile that can be moved left.
+	'''
+
+	def _is_moved_left(self, y, state):
+		return (y+1) < len(state[0])
+	'''
+	_is_moved_right checks whether there exists a tile that can be moved right.
+	'''
+
+	def _is_moved_right(self, y, state):
+		return 0 <= (y-1) < len(state[0])
+
+	'''
+	_move_down moves the tile down to the blank tile.
+	'''
+
+	def distance(self, x1, y1, x2, y2):
+		return abs(x1-x2) + abs(y1 - y2)
+
+	def _move_down(self, state, x, y, visited_states, pq, pq_node, length, moves):
+		down = self._swap(state, x-1, y, x, y)
+
+		if down not in visited_states:
+			current_path = pq_node[1]
+			heuristic_value = self._heuristic_sum(down)
+			new_moves = list(moves)
+			new_moves.append("DOWN")
+			new_node = (length + heuristic_value, down, length + 1, new_moves)
+			heappush(pq, new_node)
+
+	'''
+	_move_up moves the tile up to the blank tile.
+	'''
+
+	def _move_up(self, state, x, y, visited_states, pq, pq_node, length, moves):
+		up = self._swap(state, x+1, y, x, y)
+
+		if up not in visited_states:
+			current_path = pq_node[1]
+			heuristic_value = self._heuristic_sum(up)
+			new_moves = list(moves)
+			new_moves.append("UP")
+			new_node = (length + heuristic_value, up, length + 1, new_moves)
+			heappush(pq, new_node)
 
 
-    '''
-    _move_left moves the tile left to the blank tile.
-    '''
+	'''
+	_move_right moves the tile right to the blank tile.
+	'''
 
-    def _move_left(self, state, x, y, visited_states, pq, pq_node, length, moves):
-        left = self._swap(state, x, y+1, x, y)
+	def _move_right(self, state, x, y, visited_states, pq, pq_node, length, moves):
+		right = self._swap(state, x, y-1, x, y)
 
-        if left not in visited_states:
-            current_path = pq_node[1]
-            heuristic_value = self._heuristic_sum(left)
+		if right not in visited_states:
+			current_path = pq_node[1]
+			heuristic_value = self._heuristic_sum(right)
+			new_moves = list(moves)
+			new_moves.append("RIGHT")
+			new_node = (length + heuristic_value, right, length + 1, new_moves)
+			heappush(pq, new_node)
 
-            new_moves = list(moves)
-            new_moves.append("LEFT")
-            new_node = (length + heuristic_value, left, length + 1, new_moves)
-            heappush(pq, new_node)
 
-    def calculate_linear_conflict_column(self, initial):
-        n = len(initial)
-        total = 0
+	'''
+	_move_left moves the tile left to the blank tile.
+	'''
 
-        for i in range(n):
-            for j in range(n):
-                for k in range(i+1,n):
-                    number1 = initial[i][j]
-                    number2 = initial[k][j]
-                    if (number1 - 1) // n == k and (number1 - 1) % n == j and \
-                    (number2 - 1) // n == i and (number2 - 1) % n == j:
-                        total += 2
+	def _move_left(self, state, x, y, visited_states, pq, pq_node, length, moves):
+		left = self._swap(state, x, y+1, x, y)
 
-        return total
+		if left not in visited_states:
+			current_path = pq_node[1]
+			heuristic_value = self._heuristic_sum(left)
 
-    def calculate_linear_conflict_row(self, initial):
-        n = len(initial)
-        total = 0
+			new_moves = list(moves)
+			new_moves.append("LEFT")
+			new_node = (length + heuristic_value, left, length + 1, new_moves)
+			heappush(pq, new_node)
+	
+	# Calculate the minimum number of tiles to misplace in order to resolve all linear conflicts in the row
+	def calculate_min_num_of_tiles_to_misplace(self, row):
+		n = len(row)
+		if n <= 1: # not possible to have any conflicts if the row has 1 or less elements
+			return 0
+		
+		max_linear_conflicts = 0
+		max_linear_conflicts_index = -1
+		
+		# Array[row index] that tracks how many conflicts the tile has
+		conflicts = [0] * n
 
-        for i in range(n):
-            for j in range(n):
-                for k in range(j+1,n):
-                    number1 = initial[i][j]
-                    number2 = initial[i][k]
-                    if (number1 - 1) // n == i and (number1 - 1) % n == k and \
-                    (number2 - 1) // n == i and (number2 - 1) % n == j:
-                        total += 2
-
-        return total
+		for i in range(n):
+			for j in range(i+1,n):
+				# Check if they're in linear conflict: Essentially checking for the number of inversions, because the tiles should be arranged in ascending order in the goal state
+				# (Will have to update this if the goal state becomes something different)
+				if row[i] > row[j]:
+					conflicts[i] += 1
+					conflicts[j] += 1
+			
+			# update the max_linear_conflicts
+			if conflicts[i] > max_linear_conflicts:
+				max_linear_conflicts = conflicts[i]
+				max_linear_conflicts_index = i
+				
+		if max_linear_conflicts <= 0: # no more linear conflicts
+			return 0
+		
+		# construct a new row that has the tile with the max num of conflicts removed, for a recursive call
+		new_row = []
+		for i in range(n):
+			if i == max_linear_conflicts_index:
+				continue
+			
+			new_row.append(row[i])
+		
+		return self.calculate_min_num_of_tiles_to_misplace(new_row) + 1
+	
+	def calculate_linear_conflict(self, initial):
+		n = len(initial)
+		total_tiles_to_misplace = 0
+		
+		# check the rows
+		for x in range(n):
+			# The set of tiles whose goal position is in this row
+			goal_tiles = set()
+			for i in range(n):
+				tile = self.goal_state[x][i]
+				
+				if tile == 0: # don't add the empty tile
+					continue
+				
+				goal_tiles.add(tile)
+			
+			# construct a row to pass to calculate_min_num_of_tiles_to_misplace
+			row = []
+			for y in range(n):
+				tile = initial[x][y]
+				# row should contain only the tiles whose goal position is in the row
+				if tile in goal_tiles:
+					row.append(tile)
+			
+			total_tiles_to_misplace += self.calculate_min_num_of_tiles_to_misplace(row)
+		
+		# check the columns
+		for y in range(n):
+			goal_tiles = set()
+			for i in range(n):
+				tile = self.goal_state[i][y]
+				
+				if tile == 0:
+					continue
+				
+				goal_tiles.add(tile)
+			
+			column = []
+			for x in range(n):
+				tile = initial[x][y]
+				
+				if tile in goal_tiles:
+					column.append(tile)
+			
+			total_tiles_to_misplace += self.calculate_min_num_of_tiles_to_misplace(column)
+		
+		# return the total cost
+		return total_tiles_to_misplace * 2
 
 def informed_search_linear_conflict_test(initial, goal):
     puzzle = Puzzle(initial, goal)
